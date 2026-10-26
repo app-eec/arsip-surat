@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>APSIR - Aplikasi Pengelolaan Arsip Surat Digital</title>
+
+  <!-- PWA Manifest Data URI (1-File Standard) -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"APSIR - Aplikasi Pengelolaan Arsip Surat","short_name":"APSIR","start_url":".","display":"standalone","background_color":"#F4F6F9","theme_color":"#17A2B8","description":"Sistem Aplikasi Pengelolaan Arsip Surat Digital Terintegrasi Google Drive","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2750%27 fill=%27%2317A2B8%27/%3E%3Cpath d=%27M25 33a6 6 0 0 1 6-6h14l6 6h18a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H31a6 6 0 0 1-6-6V33z%27 fill=%27%23ffffff%27/%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <meta name="theme-color" content="#17A2B8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <!-- Google Fonts: Nunito & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Nunito', 'Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            apsir: {
+              DEFAULT: '#17A2B8',
+              light: '#25B5CD',
+              dark: '#138496',
+              darker: '#0F6674',
+              bg: '#F4F6F9',
+              banner: '#D1ECF1',
+              bannerBorder: '#BEE5EB',
+              bannerText: '#0C5460'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Font Awesome 6 Free -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* Full-Page Wrapper untuk menutupi elemen bawaan Blogger/CMS tanpa edit XML */
+    #apsir-root-wrapper {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99999;
+      background-color: #F4F6F9;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Nunito', 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Transisi Sidebar Desktop */
+    .sidebar-desktop {
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-collapsed {
+      width: 4.75rem !important;
+    }
+    .sidebar-collapsed .sidebar-text,
+    .sidebar-collapsed .sidebar-section-label {
+      display: none !important;
+    }
+    .sidebar-collapsed .sidebar-item {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    /* Media Queries Ketat Desktop vs Mobile (Sesuai Standar PWA) */
+    @media (max-width: 767px) {
+      .desktop-sidebar-container {
+        display: none !important;
+      }
+      .mobile-bottom-nav {
+        display: flex !important;
+      }
+      .main-scroll-area {
+        padding-bottom: 5.5rem !important;
+      }
+    }
+    @media (min-width: 768px) {
+      .desktop-sidebar-container {
+        display: flex !important;
+      }
+      .mobile-bottom-nav {
+        display: none !important;
+      }
+    }
+
+    /* Animasi Halus */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.22s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-apsir-bg text-slate-700 antialiased selection:bg-apsir selection:text-white">
+
+  <div id="apsir-root-wrapper">
+
+    <!-- ==================== BANNER MODE PREVIEW (HANYA MUNCUL JIKA IS_PREVIEW === true) ==================== -->
+    <div id="preview-top-banner" class="hidden bg-amber-500 text-white text-xs font-bold px-4 py-1.5 flex items-center justify-between shadow-sm z-50">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-flask animate-pulse"></i>
+        <span>MODE PREVIEW (IN-MEMORY AKTIF) — Perubahan data bersifat sementara untuk simulasi. Ubah <code>IS_PREVIEW = false</code> untuk koneksi murni Firebase Firestore.</span>
+      </div>
+      <span class="hidden sm:inline-block bg-white/20 px-2 py-0.5 rounded text-[11px]">Dual-Mode Ready</span>
+    </div>
+
+    <!-- ==================== 1. HALAMAN LOGIN (SESUAI REFERENSI GAMBAR 2) ==================== -->
+    <div id="login-screen" class="flex-1 w-full h-full bg-[#1799B0] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div class="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 my-auto animate-fade-in border border-white/20">
+        
+        <!-- Kolom Kiri: Ilustrasi Vektor Kantor Berlatar Cyan (Sesuai Gambar 2) -->
+        <div class="hidden md:flex flex-col items-center justify-center bg-[#25B5CD] p-8 relative overflow-hidden select-none">
+          <!-- Lingkaran Dekoratif Halus -->
+          <div class="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-20 -right-16 w-56 h-56 rounded-full bg-cyan-900/10"></div>
+
+          <!-- SVG Ilustrasi Flat Vektor Staf & Komputer Pengelolaan Arsip (Identik Gambar 2) -->
+          <svg viewBox="0 0 420 340" class="w-full max-w-[330px] h-auto drop-shadow-sm relative z-10" xmlns="http://www.w3.org/2000/svg">
+            <!-- Meja Kerja Putih -->
+            <polygon points="75,188 345,188 360,196 60,196" fill="#FFFFFF" />
+            <rect x="92" y="196" width="12" height="106" fill="#FFFFFF" />
+            <rect x="302" y="196" width="12" height="106" fill="#FFFFFF" />
+            <rect x="104" y="196" width="198" height="10" fill="#E2F1F5" />
+
+            <!-- Tanaman Hias di Kiri Bawah -->
+            <path d="M55,270 C40,250 38,240 58,255 C52,232 64,225 65,252 C74,230 85,240 70,260 C84,250 88,262 68,272 Z" fill="#22C55E" />
+            <polygon points="50,270 76,270 72,298 54,298" fill="#F97316" />
+            <rect x="48" y="267" width="30" height="5" rx="2" fill="#EA580C" />
+
+            <!-- Monitor Komputer di Atas Meja -->
+            <rect x="115" y="112" width="76" height="54" rx="4" fill="#1E293B" />
+            <rect x="119" y="116" width="68" height="42" rx="2" fill="#FFFFFF" />
+            <!-- Isi Layar Monitor -->
+            <rect x="123" y="120" width="60" height="6" rx="1" fill="#25B5CD" />
+            <rect x="123" y="130" width="28" height="4" rx="1" fill="#94A3B8" />
+            <rect x="123" y="137" width="44" height="4" rx="1" fill="#CBD5E1" />
+            <rect x="123" y="144" width="36" height="4" rx="1" fill="#CBD5E1" />
+            <!-- Leher & Dudukan Monitor -->
+            <rect x="147" y="166" width="12" height="16" fill="#CBD5E1" />
+            <rect x="135" y="182" width="36" height="6" rx="2" fill="#E2E8F0" />
+
+            <!-- Kartu Pop-up Dokumen Melayang di Sebelah Monitor -->
+            <rect x="172" y="102" width="52" height="32" rx="4" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+            <circle cx="180" cy="111" r="2.5" fill="#22C55E" />
+            <rect x="186" y="109" width="30" height="3.5" rx="1" fill="#64748B" />
+            <circle cx="180" cy="121" r="2.5" fill="#22C55E" />
+            <rect x="186" y="119" width="24" height="3.5" rx="1" fill="#94A3B8" />
+
+            <!-- Karakter Staf Administrasi Berdiri Mengelola Arsip -->
+            <!-- Sepatu -->
+            <ellipse cx="222" cy="300" rx="13" ry="5" fill="#0F172A" />
+            <ellipse cx="248" cy="297" rx="12" ry="5" fill="#1E293B" />
+            <!-- Celana Panjang Biru Tua -->
+            <path d="M222,205 L216,296 L229,296 L238,225 L244,293 L256,293 L256,205 Z" fill="#0369A1" />
+            <!-- Baju Kemeja / Sweater Coral Merah Muda -->
+            <path d="M214,132 C214,124 256,124 258,134 L262,206 L216,206 Z" fill="#FF6B6B" />
+            <!-- Lengan Kiri Mengarah ke Monitor -->
+            <path d="M218,136 L190,156 L172,152 L170,160 L194,168 L222,150 Z" fill="#FF5252" />
+            <!-- Tangan Kiri -->
+            <circle cx="169" cy="156" r="5" fill="#FDBA74" />
+            <!-- Kepala & Rambut -->
+            <circle cx="228" cy="108" r="13" fill="#FDBA74" />
+            <path d="M217,102 C217,90 242,90 242,104 C242,110 239,115 235,115 C235,107 228,105 221,106 Z" fill="#0F172A" />
+            <!-- Janggut / Siluet Rahang Rapi -->
+            <path d="M217,108 C217,116 223,120 227,120 L227,113 L220,112 Z" fill="#0F172A" />
+          </svg>
+        </div>
+
+        <!-- Kolom Kanan: Form Login Putih Bersih (Sesuai Gambar 2) -->
+        <div class="p-8 sm:p-11 flex flex-col justify-center bg-white relative">
+          
+          <!-- Ikon Folder Bulat Cyan -->
+          <div class="w-16 h-16 rounded-full bg-[#25B5CD] text-white flex items-center justify-center mx-auto mb-4 shadow-md shadow-cyan-500/20">
+            <i class="fa-solid fa-folder-open text-2xl"></i>
+          </div>
+
+          <h1 class="text-center text-slate-700 font-bold text-lg sm:text-xl mb-6">
+            Aplikasi Pengelolaan Arsip Surat
+          </h1>
+
+          <!-- Pesan Error Autentikasi -->
+          <div id="login-error-box" class="hidden mb-4 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm"></i>
+            <span id="login-error-text">Username atau password tidak sesuai.</span>
+          </div>
+
+          <!-- Form Login Hybrid (Admin via Email/Auth & User via Username/Firestore) -->
+          <form id="login-form" class="space-y-4" autocomplete="off">
+            <div>
+              <input
+                type="text"
+                id="login-identity"
+                required
+                placeholder="Username / Email Admin"
+                class="w-full px-5 py-3 rounded-full border border-slate-300 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#17A2B8] focus:ring-2 focus:ring-[#17A2B8]/20 transition"
+              />
+            </div>
+            <div class="relative">
+              <input
+                type="password"
+                id="login-password"
+                required
+                placeholder="Password"
+                class="w-full px-5 py-3 pr-11 rounded-full border border-slate-300 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#17A2B8] focus:ring-2 focus:ring-[#17A2B8]/20 transition"
+              />
+              <button
+                type="button"
+                id="toggle-login-pass"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs p-1"
+                title="Tampilkan/Sembunyikan Password"
+              >
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              id="btn-submit-login"
+              class="w-full py-3 rounded-full bg-[#25B5CD] hover:bg-[#17A2B8] active:scale-[0.99] text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-cyan-500/25 transition flex items-center justify-center gap-2"
+            >
+              <span>LOGIN</span>
+            </button>
+          </form>
+
+          <!-- Kotak Info Akun Demo (HANYA DIRENDER SAAT IS_PREVIEW === true) -->
+          <div id="preview-demo-box" class="hidden mt-6 p-3.5 rounded-xl bg-cyan-50/90 border border-cyan-200 text-cyan-950 text-xs">
+            <div class="font-bold mb-1.5 flex items-center justify-between">
+              <span><i class="fa-solid fa-key mr-1 text-apsir"></i> Akun Uji Coba (Klik untuk Isi Otomatis):</span>
+              <span class="text-[10px] bg-cyan-200/70 px-1.5 py-0.5 rounded font-extrabold">PREVIEW</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-2">
+              <button
+                type="button"
+                id="btn-fill-admin"
+                class="px-2.5 py-2 rounded-lg bg-white hover:bg-cyan-100 border border-cyan-300 text-left transition flex flex-col"
+              >
+                <span class="font-extrabold text-apsir-dark"><i class="fa-solid fa-user-shield mr-1"></i>Admin (Full Akses)</span>
+                <span class="text-[11px] text-slate-500">admin@apsir.id / admin123</span>
+              </button>
+              <button
+                type="button"
+                id="btn-fill-user"
+                class="px-2.5 py-2 rounded-lg bg-white hover:bg-cyan-100 border border-cyan-300 text-left transition flex flex-col"
+              >
+                <span class="font-extrabold text-emerald-700"><i class="fa-solid fa-user-check mr-1"></i>User (Operasional)</span>
+                <span class="text-[11px] text-slate-500">staf01 / user123</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="text-center text-slate-400 text-xs mt-8">
+            Copyright &copy; <span id="copyright-year">2026</span> APSIR Digital Archive
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================== 2. HALAMAN UTAMA APLIKASI (SIDEBAR + TOPBAR + KONTEN) ==================== -->
+    <div id="app-shell" class="hidden flex-1 flex h-full w-full overflow-hidden">
+
+      <!-- SIDEBAR KIRI (Desktop Only - Sesuai Referensi Gambar 1) -->
+      <aside id="desktop-sidebar" class="desktop-sidebar-container sidebar-desktop w-60 bg-[#17A2B8] text-white flex-col justify-between shrink-0 select-none shadow-lg z-30">
+        <div>
+          <!-- Brand Header: Ikon Folder + APSIR -->
+          <div class="h-16 flex items-center justify-center gap-3 px-4 border-b border-white/15">
+            <i class="fa-solid fa-folder-open text-2xl text-white"></i>
+            <span class="sidebar-text font-extrabold text-lg tracking-wider uppercase">APSIR</span>
+          </div>
+
+          <!-- Navigasi Menu -->
+          <nav class="p-3 space-y-1">
+            <!-- Dashboard -->
+            <button
+              type="button"
+              data-nav="dashboard"
+              class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-bold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-gauge-high w-5 text-center text-base"></i>
+              <span class="sidebar-text">Dashboard</span>
+            </button>
+
+            <div class="my-2 border-t border-white/15"></div>
+            <div class="sidebar-section-label px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-cyan-100/80">
+              SURAT
+            </div>
+
+            <!-- Arsip Surat (Admin & User) -->
+            <button
+              type="button"
+              data-nav="archives"
+              class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-folder w-5 text-center text-base"></i>
+              <span class="sidebar-text">Arsip Surat</span>
+            </button>
+
+            <!-- Kategori Surat (Khusus Admin) -->
+            <button
+              type="button"
+              data-nav="categories"
+              class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-layer-group w-5 text-center text-base"></i>
+              <span class="sidebar-text">Kategori Surat</span>
+            </button>
+
+            <div class="my-2 border-t border-white/15"></div>
+            <div class="sidebar-section-label px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-widest text-cyan-100/80">
+              PENGATURAN
+            </div>
+
+            <!-- Manajemen User (Khusus Admin) -->
+            <button
+              type="button"
+              data-nav="users"
+              class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-user-gear w-5 text-center text-base"></i>
+              <span class="sidebar-text">Manajemen User</span>
+            </button>
+
+            <!-- Ubah Password (Admin & User) -->
+            <button
+              type="button"
+              data-nav="password"
+              class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-key w-5 text-center text-base"></i>
+              <span class="sidebar-text">Ubah Password</span>
+            </button>
+          </nav>
+
+          <!-- Tombol Collapse Bulat di Bawah Menu (Sesuai Gambar 1) -->
+          <div class="mt-4 flex justify-center">
+            <button
+              type="button"
+              id="btn-collapse-sidebar"
+              class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition"
+              title="Kecilkan / Lebarkan Sidebar"
+            >
+              <i id="collapse-icon" class="fa-solid fa-chevron-left text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tombol Logout di Bawah Sidebar -->
+        <div class="p-3 border-t border-white/15">
+          <button
+            type="button"
+            id="btn-sidebar-logout"
+            class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-bold text-white bg-black/15 hover:bg-rose-600 transition"
+          >
+            <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+            <span class="sidebar-text">Keluar Aplikasi</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- AREA KANAN: TOPBAR + MAIN VIEWPORT -->
+      <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#F4F6F9]">
+
+        <!-- TOP NAVBAR (Sesuai Referensi Gambar 1) -->
+        <header class="h-16 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between gap-4 shrink-0 z-20">
+          
+          <!-- Pencarian Arsip Cerdas Global (Sesuai Gambar 1) -->
+          <form id="global-search-form" class="flex items-center w-full max-w-md">
+            <input
+              type="text"
+              id="global-search-input"
+              placeholder="Cari Nomor / Nama Surat..."
+              class="w-full bg-slate-50 border border-slate-200 focus:border-[#17A2B8] focus:bg-white rounded-l-md px-3.5 py-2 text-xs sm:text-sm text-slate-700 placeholder-slate-400 focus:outline-none transition"
+            />
+            <button
+              type="submit"
+              class="bg-[#17A2B8] hover:bg-apsir-dark text-white px-4 py-2 rounded-r-md text-xs sm:text-sm transition border border-[#17A2B8]"
+              title="Cari Arsip Surat"
+            >
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </form>
+
+          <!-- Profil Pengguna & Role di Sisi Kanan Topbar -->
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="text-right hidden sm:block">
+              <div id="topbar-user-name" class="text-xs font-bold text-slate-600 leading-tight">Admin</div>
+              <div id="topbar-user-role" class="text-[10px] font-semibold text-apsir uppercase tracking-wider">Administrator</div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-[#17A2B8] text-white flex items-center justify-center shadow-sm">
+              <i class="fa-solid fa-user text-sm"></i>
+            </div>
+            <!-- Tombol Keluar Cepat untuk Mobile -->
+            <button
+              type="button"
+              id="btn-topbar-logout"
+              class="md:hidden w-9 h-9 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition"
+              title="Keluar"
+            >
+              <i class="fa-solid fa-power-off text-sm"></i>
+            </button>
+          </div>
+
+        </header>
+
+        <!-- MAIN CONTENT SCROLLABLE -->
+        <main class="main-scroll-area flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+          <!-- ==================== VIEW 1: DASHBOARD INFORMATIF (SESUAI GAMBAR 1) ==================== -->
+          <section id="view-dashboard" class="space-y-5 animate-fade-in">
+            <!-- Judul Halaman -->
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                <i class="fa-solid fa-gauge-high text-slate-700"></i>
+                <span>Dashboard</span>
+              </h2>
+              <span id="realtime-status-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                Sinkronisasi Aktif
+              </span>
+            </div>
+
+            <!-- Alert Sapaan (Sesuai Gambar 1) -->
+            <div class="bg-[#D1ECF1] border border-[#BEE5EB] text-[#0C5460] px-4 py-3.5 rounded-md text-xs sm:text-sm flex items-center gap-2.5 shadow-sm">
+              <i class="fa-solid fa-user-check text-base shrink-0"></i>
+              <p>
+                Selamat datang kembali <strong id="banner-user-name" class="font-extrabold">Admin</strong> di Aplikasi Pengelolaan Arsip Surat. Anda login sebagai <strong id="banner-user-role" class="font-extrabold">Admin</strong>.
+              </p>
+            </div>
+
+            <!-- 3 Kartu Ringkasan Statistik (Sesuai Gambar 1) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <!-- Kartu 1: Arsip Surat -->
+              <div
+                data-goto="archives"
+                class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 border-l-4 border-l-[#17A2B8] p-5 flex items-center justify-between hover:shadow-md transition"
+              >
+                <div>
+                  <div class="text-xs font-bold text-[#17A2B8] mb-1">Arsip Surat</div>
+                  <div id="stat-total-archives" class="text-2xl font-extrabold text-slate-700">0</div>
+                </div>
+                <div class="text-slate-300 text-3xl">
+                  <i class="fa-solid fa-folder"></i>
+                </div>
+              </div>
+
+              <!-- Kartu 2: Kategori Surat -->
+              <div
+                data-goto="categories"
+                class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 border-l-4 border-l-[#1CC88A] p-5 flex items-center justify-between hover:shadow-md transition"
+              >
+                <div>
+                  <div class="text-xs font-bold text-[#1CC88A] mb-1">Kategori Surat</div>
+                  <div id="stat-total-categories" class="text-2xl font-extrabold text-slate-700">0</div>
+                </div>
+                <div class="text-slate-300 text-3xl">
+                  <i class="fa-solid fa-layer-group"></i>
+                </div>
+              </div>
+
+              <!-- Kartu 3: Pengguna Aplikasi -->
+              <div
+                data-goto="users"
+                class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 border-l-4 border-l-[#F6C23E] p-5 flex items-center justify-between hover:shadow-md transition"
+              >
+                <div>
+                  <div class="text-xs font-bold text-[#F6C23E] mb-1">Pengguna Aplikasi</div>
+                  <div id="stat-total-users" class="text-2xl font-extrabold text-slate-700">0</div>
+                </div>
+                <div class="text-slate-300 text-3xl">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grafik Batang: Jumlah Arsip Surat Per Kategori Surat (Sesuai Gambar 1) -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="px-5 py-3.5 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-[#17A2B8]">Jumlah Arsip Surat Per Kategori Surat</h3>
+                <span class="text-[11px] text-slate-400 font-medium">Data Statistik Real-time</span>
+              </div>
+              <div class="p-5">
+                <div id="chart-container" class="w-full h-72 relative">
+                  <canvas id="category-bar-chart" class="w-full h-full"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VIEW 2: ARSIP SURAT DIGITAL (GOOGLE DRIVE) ==================== -->
+          <section id="view-archives" class="hidden space-y-5 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                  <i class="fa-solid fa-folder-open text-[#17A2B8]"></i>
+                  <span>Arsip Surat Digital</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Kelola metadata surat dan dokumen elektronik yang tersimpan di Google Drive.</p>
+              </div>
+              <button
+                type="button"
+                id="btn-add-archive"
+                class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span>Arsipkan Surat Baru</span>
+              </button>
+            </div>
+
+            <!-- Filter & Pencarian Cerdas -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input
+                  type="text"
+                  id="archive-search-input"
+                  placeholder="Ketik Nomor Surat, Nama Surat, atau Keterangan..."
+                  class="w-full pl-9 pr-8 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-[#17A2B8]"
+                />
+                <button
+                  type="button"
+                  id="btn-clear-archive-search"
+                  class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs px-1"
+                  title="Reset Pencarian"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div>
+                <select
+                  id="archive-category-filter"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm text-slate-700 bg-white focus:outline-none focus:border-[#17A2B8]"
+                >
+                  <option value="ALL">Semua Kategori Surat</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tabel Daftar Arsip Surat -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                      <th class="py-3.5 px-4 w-12">No</th>
+                      <th class="py-3.5 px-4">Nomor Surat</th>
+                      <th class="py-3.5 px-4">Nama / Perihal Surat</th>
+                      <th class="py-3.5 px-4">Kategori</th>
+                      <th class="py-3.5 px-4">Tgl. Surat</th>
+                      <th class="py-3.5 px-4">Dokumen Drive</th>
+                      <th class="py-3.5 px-4 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="archives-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                    <!-- Diisi secara dinamis oleh JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VIEW 3: KATEGORI SURAT (KHUSUS ADMIN) ==================== -->
+          <section id="view-categories" class="hidden space-y-5 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                  <i class="fa-solid fa-layer-group text-[#1CC88A]"></i>
+                  <span>Kategori Surat</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Kelola klasifikasi dan pengelompokan jenis arsip surat instansi.</p>
+              </div>
+              <button
+                type="button"
+                id="btn-add-category"
+                class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span>Tambah Kategori</span>
+              </button>
+            </div>
+
+            <!-- Bar Pencarian Kategori -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200/80 flex items-center gap-3">
+              <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input
+                  type="text"
+                  id="category-search-input"
+                  placeholder="Cari nama atau keterangan kategori surat..."
+                  class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-[#17A2B8]"
+                />
+              </div>
+            </div>
+
+            <!-- Tabel Kategori Surat -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                      <th class="py-3.5 px-4 w-14">No</th>
+                      <th class="py-3.5 px-4">Nama Kategori Surat</th>
+                      <th class="py-3.5 px-4">Deskripsi / Keterangan</th>
+                      <th class="py-3.5 px-4 text-center">Jumlah Surat</th>
+                      <th class="py-3.5 px-4 text-center w-36">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="categories-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                    <!-- Diisi secara dinamis oleh JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VIEW 4: MANAJEMEN USER (KHUSUS ADMIN) ==================== -->
+          <section id="view-users" class="hidden space-y-5 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                  <i class="fa-solid fa-users-gear text-[#F6C23E]"></i>
+                  <span>Manajemen User</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Kelola akun staf operasional yang berwenang mengakses dan mengelola arsip surat.</p>
+              </div>
+              <button
+                type="button"
+                id="btn-add-user"
+                class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+              >
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Tambah Pengguna</span>
+              </button>
+            </div>
+
+            <!-- Bar Pencarian User -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200/80 flex items-center gap-3">
+              <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input
+                  type="text"
+                  id="user-search-input"
+                  placeholder="Cari nama lengkap, username, atau jabatan..."
+                  class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-[#17A2B8]"
+                />
+              </div>
+            </div>
+
+            <!-- Tabel Pengguna -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                      <th class="py-3.5 px-4 w-14">No</th>
+                      <th class="py-3.5 px-4">Nama Lengkap</th>
+                      <th class="py-3.5 px-4">Username Login</th>
+                      <th class="py-3.5 px-4">Jabatan / Unit</th>
+                      <th class="py-3.5 px-4">Hak Akses</th>
+                      <th class="py-3.5 px-4 text-center w-36">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="users-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
+                    <!-- Diisi secara dinamis oleh JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VIEW 5: UBAH PASSWORD (ADMIN & USER) ==================== -->
+          <section id="view-password" class="hidden space-y-5 animate-fade-in">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                <i class="fa-solid fa-shield-halved text-[#17A2B8]"></i>
+                <span>Ubah Password Akun</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">Perbarui kata sandi secara berkala untuk menjaga keamanan akses arsip Anda.</p>
+            </div>
+
+            <div class="max-w-xl bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
+              <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <span class="text-xs font-bold text-[#17A2B8] uppercase tracking-wider">Formulir Keamanan Akun</span>
+                <span id="password-account-badge" class="text-xs font-semibold text-slate-600"></span>
+              </div>
+              <form id="change-password-form" class="p-5 space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Password Saat Ini</label>
+                  <input
+                    type="password"
+                    id="cp-old-password"
+                    required
+                    placeholder="Masukkan password lama Anda"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-[#17A2B8]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Password Baru (Minimal 6 Karakter)</label>
+                  <input
+                    type="password"
+                    id="cp-new-password"
+                    required
+                    minlength="6"
+                    placeholder="Masukkan password baru"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-[#17A2B8]"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1">Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    id="cp-confirm-password"
+                    required
+                    minlength="6"
+                    placeholder="Ulangi password baru"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-[#17A2B8]"
+                  />
+                </div>
+                <div class="pt-2">
+                  <button
+                    type="submit"
+                    class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-lg shadow-sm transition flex items-center gap-2"
+                  >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Simpan Password Baru</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+        </main>
+
+        <!-- BOTTOM NAVIGATION BAR (Mobile Only - Glassmorphism) -->
+        <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 justify-around items-center z-40 shadow-lg">
+          <button type="button" data-nav="dashboard" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-gauge-high text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">Dashboard</span>
+          </button>
+          <button type="button" data-nav="archives" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-folder text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">Arsip</span>
+          </button>
+          <button type="button" data-nav="categories" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-layer-group text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">Kategori</span>
+          </button>
+          <button type="button" data-nav="users" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-user-gear text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">User</span>
+          </button>
+          <button type="button" data-nav="password" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-key text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">Password</span>
+          </button>
+        </nav>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== MODAL FORM ARSIP SURAT (TAMBAH / UBAH) ==================== -->
+    <div id="modal-archive" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
+        <div class="px-5 py-4 bg-[#17A2B8] text-white flex items-center justify-between">
+          <h3 id="modal-archive-title" class="font-bold text-base flex items-center gap-2">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            <span>Tambah Arsip Surat</span>
+          </h3>
+          <button type="button" data-close-modal="modal-archive" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-archive" class="p-5 space-y-3.5 text-xs sm:text-sm">
+          <input type="hidden" id="archive-id" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Nomor Surat *</label>
+              <input type="text" id="archive-nomor" required placeholder="Contoh: 001/SK/APSIR/2026" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal Surat *</label>
+              <input type="date" id="archive-tanggal" required class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Nama / Perihal Surat *</label>
+            <input type="text" id="archive-nama" required placeholder="Masukkan perihal atau judul dokumen surat" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Kategori Surat *</label>
+            <select id="archive-kategori" required class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-[#17A2B8]">
+              <option value="">-- Pilih Kategori Surat --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">
+              <i class="fa-brands fa-google-drive text-apsir mr-1"></i>Link Berbagi / File ID Google Drive *
+            </label>
+            <input
+              type="text"
+              id="archive-drive-url"
+              required
+              placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing"
+              class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]"
+            />
+            <p class="text-[11px] text-slate-400 mt-1">
+              Unggah file PDF/Word surat ke Google Drive Anda, atur akses ke <strong>"Siapa saja yang memiliki link"</strong>, lalu tempel tautannya di sini.
+            </p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Keterangan / Ringkasan Isi</label>
+            <textarea id="archive-keterangan" rows="2" placeholder="Catatan tambahan mengenai surat..." class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]"></textarea>
+          </div>
+          <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <button type="button" data-close-modal="modal-archive" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold shadow-sm">Simpan Arsip</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL PENAMPIL DOKUMEN ELEKTRONIK GOOGLE DRIVE ==================== -->
+    <div id="modal-drive-preview" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[88vh] flex flex-col overflow-hidden animate-fade-in">
+        <!-- Header Modal Preview -->
+        <div class="px-5 py-3.5 bg-[#17A2B8] text-white flex items-center justify-between gap-3 shrink-0">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <i class="fa-brands fa-google-drive text-lg"></i>
+              <h3 id="preview-doc-title" class="font-bold text-sm sm:text-base truncate">Penampil Dokumen Elektronik</h3>
+            </div>
+            <p id="preview-doc-meta" class="text-[11px] text-cyan-100 truncate mt-0.5"></p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <a
+              id="preview-open-drive"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-3 py-1.5 rounded-lg bg-white text-[#17A2B8] hover:bg-cyan-50 font-bold text-xs flex items-center gap-1.5 shadow-sm"
+            >
+              <i class="fa-solid fa-up-right-from-square"></i>
+              <span class="hidden sm:inline">Buka di Google Drive</span>
+            </a>
+            <button type="button" data-close-modal="modal-drive-preview" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kontainer Embed Iframe Google Drive -->
+        <div class="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
+          <iframe
+            id="drive-preview-iframe"
+            src="about:blank"
+            class="w-full flex-1 border-0"
+            allow="autoplay"
+          ></iframe>
+          <!-- Footer Bantuan Preview -->
+          <div class="px-4 py-2 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-circle-info text-apsir mr-1"></i>Jika pratinjau meminta izin akses, pastikan file di Google Drive disetel ke <strong>"Siapa saja yang memiliki link"</strong>.</span>
+            <a id="preview-download-drive" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-[#17A2B8] hover:underline">
+              <i class="fa-solid fa-download mr-1"></i>Unduh File Langsung
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL FORM KATEGORI SURAT (KHUSUS ADMIN) ==================== -->
+    <div id="modal-category" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+        <div class="px-5 py-4 bg-[#17A2B8] text-white flex items-center justify-between">
+          <h3 id="modal-category-title" class="font-bold text-base flex items-center gap-2">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Tambah Kategori Surat</span>
+          </h3>
+          <button type="button" data-close-modal="modal-category" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-category" class="p-5 space-y-4 text-xs sm:text-sm">
+          <input type="hidden" id="category-id" />
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kategori Surat *</label>
+            <input type="text" id="category-nama" required placeholder="Contoh: Surat Keputusan" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Deskripsi Kategori</label>
+            <textarea id="category-deskripsi" rows="3" placeholder="Penjelasan singkat penggunaan kategori surat ini..." class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]"></textarea>
+          </div>
+          <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <button type="button" data-close-modal="modal-category" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold shadow-sm">Simpan Kategori</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL FORM MANAJEMEN USER (KHUSUS ADMIN) ==================== -->
+    <div id="modal-user" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+        <div class="px-5 py-4 bg-[#17A2B8] text-white flex items-center justify-between">
+          <h3 id="modal-user-title" class="font-bold text-base flex items-center gap-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Tambah Pengguna Aplikasi</span>
+          </h3>
+          <button type="button" data-close-modal="modal-user" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form id="form-user" class="p-5 space-y-3.5 text-xs sm:text-sm">
+          <input type="hidden" id="user-id" />
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Pengguna *</label>
+            <input type="text" id="user-nama" required placeholder="Contoh: Rina Kartika, S.AP" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Username Login *</label>
+            <input type="text" id="user-username" required placeholder="Contoh: staf01" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Password Login *</label>
+            <input type="text" id="user-password" required placeholder="Masukkan password pengguna" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Jabatan / Unit Kerja *</label>
+            <input type="text" id="user-jabatan" required placeholder="Contoh: Staf Kearsipan Umum" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
+          </div>
+          <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <button type="button" data-close-modal="modal-user" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold shadow-sm">Simpan Pengguna</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL KONFIRMASI HAPUS (PENGGANTI CONFIRM BAWAAN) ==================== -->
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-fade-in">
+        <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+        </div>
+        <h3 id="confirm-title" class="font-bold text-slate-800 text-base">Konfirmasi Hapus Data</h3>
+        <p id="confirm-message" class="text-xs text-slate-500 mt-1.5 mb-5">Apakah Anda yakin ingin menghapus data ini secara permanen?</p>
+        <div class="flex items-center justify-center gap-2.5">
+          <button type="button" id="btn-confirm-cancel" class="flex-1 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs">Batal</button>
+          <button type="button" id="btn-confirm-ok" class="flex-1 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm">Ya, Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TOAST NOTIFICATION (PENGGANTI ALERT BAWAAN) ==================== -->
+    <div id="toast-container" class="fixed bottom-16 md:bottom-5 right-5 z-[100000] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  </div>
+
+  <!-- ==================== LOGIKA UTAMA APLIKASI (MODULE FIREBASE + DUAL-MODE) ==================== -->
+  <script type="module">
+    // KONFIGURASI APLIKASI
+    const IS_PREVIEW = true; // Ubah menjadi false SAAT DEPLOY / PUBLISH agar terhubung murni ke Firebase tanpa data dummy
+
+    // PASTE FIREBASE CONFIG ANDA DI SINI
+    const firebaseConfig = {
+      apiKey: "API_KEY_ANDA",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    // Import Modul Firebase v11
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      signOut,
+      updatePassword
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      getDocs,
+      query,
+      where,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==================== REGISTRASI SERVICE WORKER PWA DINAMIS (1-FILE BLOB) ====================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swScript = `
+          self.addEventListener('install', (e) => self.skipWaiting());
+          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch', (e) => {});
+        `;
+        const blob = new Blob([swScript], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).catch(() => {});
+      });
+    }
+
+    // ==================== VARIABEL STATE APLIKASI ====================
+    let app = null;
+    let auth = null;
+    let db = null;
+    let unsubscribeListeners = [];
+
+    let currentUser = null; // { id, namaLengkap, username, role: 'admin'|'user', jabatan }
+    let currentView = 'dashboard';
+
+    // State Koleksi Data
+    let categoriesData = [];
+    let archivesData = [];
+    let usersData = [];
+
+    // State Pencarian & Filter
+    let archiveSearchText = '';
+    let archiveCategoryFilter = 'ALL';
+    let categorySearchText = '';
+    let userSearchText = '';
+
+    // Callback Modal Konfirmasi
+    let pendingConfirmAction = null;
+
+    // ==================== INISIALISASI MODE (PREVIEW VS PRODUKSI MURNI) ====================
+    function initializeApplication() {
+      document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+      if (IS_PREVIEW === true) {
+        // Tampilkan UI indikator Preview & Akun Demo HANYA saat IS_PREVIEW === true
+        document.getElementById('preview-top-banner').classList.remove('hidden');
+        document.getElementById('preview-demo-box').classList.remove('hidden');
+
+        // Muat Maksimal 2 Data Dummy per Koleksi di Memori Sementara (Sesuai Aturan Ketat)
+        categoriesData = [
+          {
+            id: 'cat-1',
+            namaKategori: 'Surat Keputusan',
+            deskripsi: 'Arsip surat keputusan resmi pimpinan dan penetapan kebijakan instansi.',
+            createdAt: Date.now() - 86400000
+          },
+          {
+            id: 'cat-2',
+            namaKategori: 'Surat Tugas',
+            deskripsi: 'Arsip surat penugasan dinas dan operasional pegawai.',
+            createdAt: Date.now()
+          }
+        ];
+
+        archivesData = [
+          {
+            id: 'arc-1',
+            nomorSurat: '001/SK/APSIR/X/2026',
+            namaSurat: 'SK Penetapan Tim Pengelola Arsip Digital Tahun 2026',
+            kategoriId: 'cat-1',
+            kategoriNama: 'Surat Keputusan',
+            tanggalSurat: '2026-10-15',
+            driveUrl: 'https://drive.google.com/file/d/1DemoFileSKPengelolaArsip2026/view?usp=sharing',
+            driveFileId: '1DemoFileSKPengelolaArsip2026',
+            keterangan: 'Dokumen penetapan struktur pengurus arsip pusat.',
+            uploadedBy: 'Admin',
+            createdAt: Date.now() - 50000
+          },
+          {
+            id: 'arc-2',
+            nomorSurat: '014/ST/APSIR/X/2026',
+            namaSurat: 'Surat Tugas Sosialisasi Sistem Kearsipan Elektronik',
+            kategoriId: 'cat-2',
+            kategoriNama: 'Surat Tugas',
+            tanggalSurat: '2026-10-24',
+            driveUrl: 'https://drive.google.com/file/d/1DemoFileSuratTugasSosialisasi/view?usp=sharing',
+            driveFileId: '1DemoFileSuratTugasSosialisasi',
+            keterangan: 'Penugasan staf administrasi untuk pendampingan unit kerja.',
+            uploadedBy: 'Budi Santoso',
+            createdAt: Date.now()
+          }
+        ];
+
+        usersData = [
+          {
+            id: 'usr-1',
+            namaLengkap: 'Budi Santoso, S.AP',
+            username: 'staf01',
+            password: 'user123',
+            jabatan: 'Staf Administrasi & Arsip',
+            role: 'user',
+            createdAt: Date.now() - 86400000
+          },
+          {
+            id: 'usr-2',
+            namaLengkap: 'Siti Rahmawati',
+            username: 'staf02',
+            password: 'user123',
+            jabatan: 'Petugas Tata Usaha',
+            role: 'user',
+            createdAt: Date.now()
+          }
+        ];
+      } else {
+        // MODE PRODUKSI MURNI: Sembunyikan seluruh elemen Preview & hubungkan ke Firebase
+        document.getElementById('preview-top-banner').classList.add('hidden');
+        document.getElementById('preview-demo-box').classList.add('hidden');
+
+        try {
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+        } catch (err) {
+          showToast('Konfigurasi Firebase belum valid. Periksa firebaseConfig Anda.', 'error');
+        }
+      }
+
+      bindEventListeners();
+    }
+
+    // ==================== HELPER NOTIFIKASI TOAST & KONFIRMASI ====================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-600 text-white border-emerald-700',
+        error: 'bg-rose-600 text-white border-rose-700',
+        info: 'bg-[#17A2B8] text-white border-cyan-700'
+      };
+      const icons = {
+        success: 'fa-circle-check',
+        error: 'fa-circle-exclamation',
+        info: 'fa-circle-info'
+      };
+
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-xs sm:text-sm font-bold animate-fade-in ${colors[type] || colors.info}`;
+      toast.innerHTML = `
+        <i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i>
+        <span class="flex-1">${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 3200);
+    }
+
+    function openConfirmModal(title, message, onConfirm) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      pendingConfirmAction = onConfirm;
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ==================== HELPER EKSTRAKSI ID FILE GOOGLE DRIVE ====================
+    function extractDriveFileId(inputUrl) {
+      const trimmed = (inputUrl || '').trim();
+      if (!trimmed) return '';
+      // Pola /file/d/FILE_ID/ atau /d/FILE_ID/
+      const matchFileD = trimmed.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+      if (matchFileD && matchFileD[1]) return matchFileD[1];
+      // Pola ?id=FILE_ID atau &id=FILE_ID
+      const matchQueryId = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
+      if (matchQueryId && matchQueryId[1]) return matchQueryId[1];
+      // Jika user langsung memasukkan File ID murni tanpa spasi/slash
+      if (/^[a-zA-Z0-9_-]{10,}$/.test(trimmed)) return trimmed;
+      return '';
+    }
+
+    // ==================== AUTENTIKASI HYBRID (ADMIN VIA AUTH & USER VIA FIRESTORE) ====================
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const identity = document.getElementById('login-identity').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorBox = document.getElementById('login-error-box');
+      const errorText = document.getElementById('login-error-text');
+      const submitBtn = document.getElementById('btn-submit-login');
+
+      errorBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>MEMVERIFIKASI...</span>`;
+
+      try {
+        if (IS_PREVIEW === true) {
+          // Simulasi Login Mode Preview (In-Memory)
+          await new Promise((r) => setTimeout(r, 300));
+          const isAdminDemo =
+            (identity.toLowerCase() === 'admin' || identity.toLowerCase() === 'admin@apsir.id') &&
+            password === previewAdminPassword;
+
+          if (isAdminDemo) {
+            currentUser = {
+              id: 'admin-preview',
+              namaLengkap: 'Admin',
+              username: 'admin@apsir.id',
+              role: 'admin',
+              jabatan: 'Administrator Sistem'
+            };
+            enterApplicationSession();
+            return;
+          }
+
+          // Cek di koleksi users in-memory untuk User Operasional
+          const foundUser = usersData.find(
+            (u) => u.username.toLowerCase() === identity.toLowerCase() && u.password === password
+          );
+          if (foundUser) {
+            currentUser = {
+              id: foundUser.id,
+              namaLengkap: foundUser.namaLengkap,
+              username: foundUser.username,
+              role: 'user',
+              jabatan: foundUser.jabatan
+            };
+            enterApplicationSession();
+            return;
+          }
+
+          throw new Error('Username/Email atau Password tidak sesuai. Gunakan tombol Akun Uji Coba di bawah.');
+        } else {
+          // MODE PRODUKSI MURNI (`IS_PREVIEW === false`)
+          if (!db || !auth) {
+            throw new Error('Koneksi Firebase belum terinisialisasi.');
+          }
+
+          // Jika input mengandung '@' -> Login sebagai Admin via Firebase Authentication
+          if (identity.includes('@')) {
+            const cred = await signInWithEmailAndPassword(auth, identity, password);
+            currentUser = {
+              id: cred.user.uid,
+              namaLengkap: cred.user.displayName || 'Admin',
+              username: cred.user.email,
+              role: 'admin',
+              jabatan: 'Administrator Utama'
+            };
+            startFirestoreRealtimeListeners();
+            enterApplicationSession();
+          } else {
+            // Jika input berupa Username -> Validasi langsung ke koleksi `users` di Firestore
+            const q = query(
+              collection(db, 'users'),
+              where('username', '==', identity),
+              where('password', '==', password)
+            );
+            const snap = await getDocs(q);
+            if (snap.empty) {
+              throw new Error('Username atau Password User tidak ditemukan di database.');
+            }
+            const userDoc = snap.docs[0];
+            const data = userDoc.data();
+            currentUser = {
+              id: userDoc.id,
+              namaLengkap: data.namaLengkap || data.username,
+              username: data.username,
+              role: 'user',
+              jabatan: data.jabatan || 'Staf Operasional'
+            };
+            startFirestoreRealtimeListeners();
+            enterApplicationSession();
+          }
+        }
+      } catch (err) {
+        errorText.textContent = err.message || 'Gagal masuk. Periksa kembali kredensial Anda.';
+        errorBox.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>LOGIN</span>`;
+      }
+    }
+
+    let previewAdminPassword = 'admin123';
+
+    function enterApplicationSession() {
+      // Sembunyikan Layar Login & Tampilkan Shell Aplikasi
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+
+      // Update Informasi Profil & Banner Sapaan
+      const roleLabel = currentUser.role === 'admin' ? 'Admin' : 'User';
+      document.getElementById('topbar-user-name').textContent = currentUser.namaLengkap;
+      document.getElementById('topbar-user-role').textContent =
+        currentUser.role === 'admin' ? 'Administrator' : currentUser.jabatan || 'User Operasional';
+      document.getElementById('banner-user-name').textContent = currentUser.namaLengkap;
+      document.getElementById('banner-user-role').textContent = roleLabel;
+      document.getElementById('password-account-badge').textContent = `${currentUser.namaLengkap} (${roleLabel})`;
+
+      // Atur Hak Akses Menu Multi-Level (Admin vs User)
+      const adminMenus = document.querySelectorAll('.admin-only-menu');
+      adminMenus.forEach((el) => {
+        if (currentUser.role === 'admin') {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      // Reset form login
+      document.getElementById('login-form').reset();
+
+      // Buka Dashboard & Render Semua Data
+      switchMenu('dashboard');
+      refreshAllViews();
+      showToast(`Selamat datang kembali, ${currentUser.namaLengkap}!`, 'info');
+    }
+
+    async function handleLogout() {
+      // Hentikan listener Firestore jika ada
+      unsubscribeListeners.forEach((unsub) => {
+        if (typeof unsub === 'function') unsub();
+      });
+      unsubscribeListeners = [];
+
+      if (!IS_PREVIEW && auth && auth.currentUser) {
+        try {
+          await signOut(auth);
+        } catch (_) {}
+      }
+
+      currentUser = null;
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      showToast('Anda telah keluar dari sesi aplikasi.', 'info');
+    }
+
+    // ==================== KONEKSI REAL-TIME FIRESTORE (SAAT IS_PREVIEW === false) ====================
+    function startFirestoreRealtimeListeners() {
+      if (IS_PREVIEW === true || !db) return;
+
+      // 1. Listener Koleksi `categories`
+      const unsubCat = onSnapshot(
+        collection(db, 'categories'),
+        (snap) => {
+          categoriesData = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (a.namaKategori || '').localeCompare(b.namaKategori || ''));
+          refreshAllViews();
+        },
+        () => showToast('Gagal memuat data kategori dari Firestore.', 'error')
+      );
+
+      // 2. Listener Koleksi `archives`
+      const unsubArc = onSnapshot(
+        collection(db, 'archives'),
+        (snap) => {
+          archivesData = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          refreshAllViews();
+        },
+        () => showToast('Gagal memuat data arsip surat dari Firestore.', 'error')
+      );
+
+      // 3. Listener Koleksi `users`
+      const unsubUsr = onSnapshot(
+        collection(db, 'users'),
+        (snap) => {
+          usersData = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (a.namaLengkap || '').localeCompare(b.namaLengkap || ''));
+          refreshAllViews();
+        },
+        () => showToast('Gagal memuat data pengguna dari Firestore.', 'error')
+      );
+
+      unsubscribeListeners.push(unsubCat, unsubArc, unsubUsr);
+    }
+
+    // ==================== NAVIGASI ANTAR MENU ====================
+    function switchMenu(targetView) {
+      // Proteksi Hak Akses: User tidak boleh membuka menu categories atau users
+      if (currentUser && currentUser.role !== 'admin' && (targetView === 'categories' || targetView === 'users')) {
+        showToast('Akses dibatasi. Menu tersebut khusus untuk Administrator.', 'error');
+        return;
+      }
+
+      currentView = targetView;
+      const views = ['dashboard', 'archives', 'categories', 'users', 'password'];
+      views.forEach((v) => {
+        const section = document.getElementById(`view-${v}`);
+        if (section) {
+          if (v === targetView) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        }
+      });
+
+      // Highlight Tombol Navigasi Aktif di Sidebar & Mobile Bottom Bar
+      document.querySelectorAll('.nav-trigger').forEach((btn) => {
+        const nav = btn.getAttribute('data-nav');
+        const isSidebar = btn.classList.contains('sidebar-item');
+        if (nav === targetView) {
+          if (isSidebar) {
+            btn.classList.add('bg-white/25', 'shadow-inner');
+          } else {
+            btn.classList.remove('text-slate-500');
+            btn.classList.add('text-[#17A2B8]', 'bg-cyan-50');
+          }
+        } else {
+          if (isSidebar) {
+            btn.classList.remove('bg-white/25', 'shadow-inner');
+          } else {
+            btn.classList.remove('text-[#17A2B8]', 'bg-cyan-50');
+            btn.classList.add('text-slate-500');
+          }
+        }
+      });
+
+      if (targetView === 'dashboard') {
+        requestAnimationFrame(() => drawCategoryBarChart());
+      }
+    }
+
+    // ==================== RENDER SELURUH DATA KE UI ====================
+    function refreshAllViews() {
+      if (!currentUser) return;
+      renderDashboardStatsAndChart();
+      populateCategoryDropdowns();
+      renderArchivesTable();
+      renderCategoriesTable();
+      renderUsersTable();
+    }
+
+    // 1. Render Statistik Dashboard & Grafik Batang (Sesuai Gambar 1)
+    function renderDashboardStatsAndChart() {
+      document.getElementById('stat-total-archives').textContent = archivesData.length;
+      document.getElementById('stat-total-categories').textContent = categoriesData.length;
+      // Hitung total pengguna aplikasi (termasuk akun Admin utama + seluruh User Operasional)
+      document.getElementById('stat-total-users').textContent = usersData.length;
+
+      drawCategoryBarChart();
+    }
+
+    function drawCategoryBarChart() {
+      const canvas = document.getElementById('category-bar-chart');
+      if (!canvas) return;
+      const parent = canvas.parentElement;
+      const width = parent.clientWidth || 600;
+      const height = parent.clientHeight || 280;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Siapkan label kategori & jumlah surat per kategori
+      const labels = categoriesData.map((c) => c.namaKategori);
+      const counts = categoriesData.map(
+        (c) => archivesData.filter((a) => a.kategoriId === c.id || a.kategoriNama === c.namaKategori).length
+      );
+
+      if (labels.length === 0) {
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '600 13px Nunito, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Belum ada data kategori surat untuk ditampilkan pada grafik.', width / 2, height / 2);
+        return;
+      }
+
+      const maxVal = Math.max(3, ...counts);
+      const chartLeft = 42;
+      const chartRight = width - 20;
+      const chartTop = 20;
+      const chartBottom = height - 42;
+      const chartWidth = chartRight - chartLeft;
+      const chartHeight = chartBottom - chartTop;
+
+      // Gambar garis horizontal grid & angka sumbu Y (bilangan bulat seperti di Gambar 1)
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#64748B';
+      ctx.font = '600 11px Nunito, sans-serif';
+      ctx.textAlign = 'right';
+
+      for (let step = 0; step <= maxVal; step++) {
+        const y = chartBottom - (step / maxVal) * chartHeight;
+        ctx.beginPath();
+        ctx.moveTo(chartLeft, y);
+        ctx.lineTo(chartRight, y);
+        ctx.stroke();
+        ctx.fillText(String(step), chartLeft - 10, y + 4);
+      }
+
+      // Gambar Batang Vertikal Berwarna Cyan (#17A2B8)
+      const slotWidth = chartWidth / labels.length;
+      const barWidth = Math.min(58, Math.max(24, slotWidth * 0.48));
+
+      labels.forEach((label, idx) => {
+        const val = counts[idx];
+        const barHeight = (val / maxVal) * chartHeight;
+        const x = chartLeft + idx * slotWidth + (slotWidth - barWidth) / 2;
+        const y = chartBottom - barHeight;
+
+        // Batang Utama Cyan
+        ctx.fillStyle = '#17A2B8';
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, Math.max(barHeight, 2), [4, 4, 0, 0]);
+        ctx.fill();
+
+        // Angka di atas batang jika > 0
+        if (val > 0) {
+          ctx.fillStyle = '#0F6674';
+          ctx.font = '700 11px Nunito, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(String(val), x + barWidth / 2, y - 6);
+        }
+
+        // Label Kategori di Sumbu X
+        ctx.fillStyle = '#475569';
+        ctx.font = '600 11px Nunito, sans-serif';
+        ctx.textAlign = 'center';
+        const shortLabel = label.length > 18 ? label.slice(0, 16) + '…' : label;
+        ctx.fillText(shortLabel, x + barWidth / 2, chartBottom + 20);
+      });
+    }
+
+    // 2. Populate Dropdown Kategori Surat
+    function populateCategoryDropdowns() {
+      const filterSelect = document.getElementById('archive-category-filter');
+      const formSelect = document.getElementById('archive-kategori');
+
+      const currentFilter = filterSelect.value;
+      filterSelect.innerHTML = `<option value="ALL">Semua Kategori Surat</option>`;
+      formSelect.innerHTML = `<option value="">-- Pilih Kategori Surat --</option>`;
+
+      categoriesData.forEach((cat) => {
+        const optFilter = document.createElement('option');
+        optFilter.value = cat.id;
+        optFilter.textContent = cat.namaKategori;
+        filterSelect.appendChild(optFilter);
+
+        const optForm = document.createElement('option');
+        optForm.value = cat.id;
+        optForm.textContent = cat.namaKategori;
+        formSelect.appendChild(optForm);
+      });
+
+      if ([...filterSelect.options].some((o) => o.value === currentFilter)) {
+        filterSelect.value = currentFilter;
+      }
+    }
+
+    // 3. Render Tabel Arsip Surat Digital
+    function renderArchivesTable() {
+      const tbody = document.getElementById('archives-table-body');
+      const keyword = archiveSearchText.toLowerCase().trim();
+
+      const filtered = archivesData.filter((item) => {
+        const matchKeyword =
+          !keyword ||
+          (item.nomorSurat || '').toLowerCase().includes(keyword) ||
+          (item.namaSurat || '').toLowerCase().includes(keyword) ||
+          (item.kategoriNama || '').toLowerCase().includes(keyword) ||
+          (item.keterangan || '').toLowerCase().includes(keyword);
+
+        const matchCategory =
+          archiveCategoryFilter === 'ALL' || item.kategoriId === archiveCategoryFilter;
+
+        return matchKeyword && matchCategory;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-12 px-4 text-center text-slate-400">
+              <i class="fa-regular fa-folder-open text-3xl mb-2 block text-slate-300"></i>
+              <p class="font-bold text-slate-600 text-sm">Belum ada data arsip surat yang ditemukan</p>
+              <p class="text-xs mt-0.5">Klik tombol "+ Arsipkan Surat Baru" untuk menyimpan arsip surat ke sistem.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map(
+          (item, index) => `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3.5 px-4 font-bold text-slate-500">${index + 1}</td>
+            <td class="py-3.5 px-4">
+              <span class="font-extrabold text-slate-700 block">${escapeHtml(item.nomorSurat)}</span>
+              <span class="text-[11px] text-slate-400">Oleh: ${escapeHtml(item.uploadedBy || 'Admin')}</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="font-bold text-slate-700">${escapeHtml(item.namaSurat)}</div>
+              ${
+                item.keterangan
+                  ? `<div class="text-[11px] text-slate-400 line-clamp-1">${escapeHtml(item.keterangan)}</div>`
+                  : ''
+              }
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-50 text-[#17A2B8] border border-cyan-200">
+                ${escapeHtml(item.kategoriNama || 'Umum')}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">
+              ${escapeHtml(item.tanggalSurat || '-')}
+            </td>
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              <button
+                type="button"
+                data-action="preview-drive"
+                data-id="${escapeHtml(item.id)}"
+                class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs inline-flex items-center gap-1.5 transition"
+              >
+                <i class="fa-brands fa-google-drive"></i>
+                <span>Lihat Dokumen</span>
+              </button>
+            </td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1.5">
+                <button
+                  type="button"
+                  data-action="edit-archive"
+                  data-id="${escapeHtml(item.id)}"
+                  class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center transition"
+                  title="Ubah Arsip"
+                >
+                  <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </button>
+                <button
+                  type="button"
+                  data-action="delete-archive"
+                  data-id="${escapeHtml(item.id)}"
+                  class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center transition"
+                  title="Hapus Arsip"
+                >
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `
+        )
+        .join('');
+    }
+
+    // 4. Render Tabel Kategori Surat
+    function renderCategoriesTable() {
+      const tbody = document.getElementById('categories-table-body');
+      const keyword = categorySearchText.toLowerCase().trim();
+
+      const filtered = categoriesData.filter(
+        (c) =>
+          !keyword ||
+          (c.namaKategori || '').toLowerCase().includes(keyword) ||
+          (c.deskripsi || '').toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-10 px-4 text-center text-slate-400">
+              <p class="font-bold text-slate-600 text-sm">Belum ada data kategori surat</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map((cat, idx) => {
+          const count = archivesData.filter(
+            (a) => a.kategoriId === cat.id || a.kategoriNama === cat.namaKategori
+          ).length;
+          return `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
+              <td class="py-3.5 px-4 font-extrabold text-slate-700">${escapeHtml(cat.namaKategori)}</td>
+              <td class="py-3.5 px-4 text-slate-500">${escapeHtml(cat.deskripsi || '-')}</td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700">
+                  ${count} Surat
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <div class="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    data-action="edit-category"
+                    data-id="${escapeHtml(cat.id)}"
+                    class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center transition"
+                    title="Ubah Kategori"
+                  >
+                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                  </button>
+                  <button
+                    type="button"
+                    data-action="delete-category"
+                    data-id="${escapeHtml(cat.id)}"
+                    class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center transition"
+                    title="Hapus Kategori"
+                  >
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    // 5. Render Tabel Manajemen User
+    function renderUsersTable() {
+      const tbody = document.getElementById('users-table-body');
+      const keyword = userSearchText.toLowerCase().trim();
+
+      const filtered = usersData.filter(
+        (u) =>
+          !keyword ||
+          (u.namaLengkap || '').toLowerCase().includes(keyword) ||
+          (u.username || '').toLowerCase().includes(keyword) ||
+          (u.jabatan || '').toLowerCase().includes(keyword)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 px-4 text-center text-slate-400">
+              <p class="font-bold text-slate-600 text-sm">Belum ada data pengguna operasional</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map(
+          (usr, idx) => `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
+            <td class="py-3.5 px-4 font-extrabold text-slate-700">${escapeHtml(usr.namaLengkap)}</td>
+            <td class="py-3.5 px-4">
+              <code class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">${escapeHtml(usr.username)}</code>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">${escapeHtml(usr.jabatan || '-')}</td>
+            <td class="py-3.5 px-4">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                User Operasional
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button
+                  type="button"
+                  data-action="edit-user"
+                  data-id="${escapeHtml(usr.id)}"
+                  class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center transition"
+                  title="Ubah Pengguna"
+                >
+                  <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </button>
+                <button
+                  type="button"
+                  data-action="delete-user"
+                  data-id="${escapeHtml(usr.id)}"
+                  class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center transition"
+                  title="Hapus Pengguna"
+                >
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `
+        )
+        .join('');
+    }
+
+    // ==================== OPERASI CRUD ARSIP SURAT (DENGAN GOOGLE DRIVE) ====================
+    function openArchiveModal(editItem = null) {
+      document.getElementById('form-archive').reset();
+      populateCategoryDropdowns();
+
+      if (editItem) {
+        document.getElementById('modal-archive-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i><span>Ubah Data Arsip Surat</span>`;
+        document.getElementById('archive-id').value = editItem.id;
+        document.getElementById('archive-nomor').value = editItem.nomorSurat || '';
+        document.getElementById('archive-tanggal').value = editItem.tanggalSurat || '';
+        document.getElementById('archive-nama').value = editItem.namaSurat || '';
+        document.getElementById('archive-kategori').value = editItem.kategoriId || '';
+        document.getElementById('archive-drive-url').value = editItem.driveUrl || '';
+        document.getElementById('archive-keterangan').value = editItem.keterangan || '';
+      } else {
+        document.getElementById('modal-archive-title').innerHTML = `<i class="fa-solid fa-file-circle-plus"></i><span>Tambah Arsip Surat Baru</span>`;
+        document.getElementById('archive-id').value = '';
+        document.getElementById('archive-tanggal').value = new Date().toISOString().split('T')[0];
+      }
+      document.getElementById('modal-archive').classList.remove('hidden');
+    }
+
+    async function handleSaveArchive(e) {
+      e.preventDefault();
+      const id = document.getElementById('archive-id').value;
+      const nomorSurat = document.getElementById('archive-nomor').value.trim();
+      const tanggalSurat = document.getElementById('archive-tanggal').value;
+      const namaSurat = document.getElementById('archive-nama').value.trim();
+      const kategoriId = document.getElementById('archive-kategori').value;
+      const driveUrl = document.getElementById('archive-drive-url').value.trim();
+      const keterangan = document.getElementById('archive-keterangan').value.trim();
+
+      const selectedCat = categoriesData.find((c) => c.id === kategoriId);
+      const kategoriNama = selectedCat ? selectedCat.namaKategori : 'Umum';
+      const driveFileId = extractDriveFileId(driveUrl);
+
+      if (!driveFileId) {
+        showToast('Link atau File ID Google Drive tidak valid. Pastikan format tautan benar.', 'error');
+        return;
+      }
+
+      const payload = {
+        nomorSurat,
+        tanggalSurat,
+        namaSurat,
+        kategoriId,
+        kategoriNama,
+        driveUrl,
+        driveFileId,
+        keterangan,
+        uploadedBy: currentUser ? currentUser.namaLengkap : 'Admin',
+        createdAt: Date.now()
+      };
+
+      try {
+        if (IS_PREVIEW === true) {
+          if (id) {
+            const idx = archivesData.findIndex((a) => a.id === id);
+            if (idx !== -1) archivesData[idx] = { ...archivesData[idx], ...payload };
+            showToast('Arsip surat berhasil diperbarui.');
+          } else {
+            archivesData.unshift({ id: 'arc-' + Date.now(), ...payload });
+            showToast('Arsip surat baru berhasil disimpan.');
+          }
+          refreshAllViews();
+        } else {
+          if (id) {
+            await updateDoc(doc(db, 'archives', id), payload);
+            showToast('Arsip surat berhasil diperbarui di Firestore.');
+          } else {
+            await addDoc(collection(db, 'archives'), payload);
+            showToast('Arsip surat baru berhasil disimpan ke Firestore.');
+          }
+        }
+        document.getElementById('modal-archive').classList.add('hidden');
+      } catch (err) {
+        showToast('Gagal menyimpan arsip surat: ' + err.message, 'error');
+      }
+    }
+
+    function openDrivePreviewModal(archiveItem) {
+      if (!archiveItem) return;
+      const fileId = archiveItem.driveFileId || extractDriveFileId(archiveItem.driveUrl);
+      document.getElementById('preview-doc-title').textContent = archiveItem.namaSurat;
+      document.getElementById('preview-doc-meta').textContent = `Nomor: ${archiveItem.nomorSurat} • Kategori: ${archiveItem.kategoriNama} • Tanggal: ${archiveItem.tanggalSurat}`;
+
+      const viewUrl = fileId
+        ? `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`
+        : archiveItem.driveUrl;
+      const downloadUrl = fileId
+        ? `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}`
+        : archiveItem.driveUrl;
+
+      document.getElementById('preview-open-drive').href = viewUrl;
+      document.getElementById('preview-download-drive').href = downloadUrl;
+
+      const iframe = document.getElementById('drive-preview-iframe');
+      if (IS_PREVIEW === true && fileId.startsWith('1DemoFile')) {
+        // Tampilkan simulasi lembar dokumen resmi yang rapi untuk 2 data contoh di Mode Preview
+        const docHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8" />
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; background: #e2e8f0; margin: 0; padding: 24px; display: flex; justify-content: center; }
+              .page { background: #fff; max-width: 680px; width: 100%; padding: 40px 48px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); color: #1e293b; }
+              .kop { border-bottom: 3px double #0f172a; padding-bottom: 14px; margin-bottom: 24px; text-align: center; }
+              .kop h2 { margin: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; color: #0f6674; }
+              .kop p { margin: 4px 0 0; font-size: 12px; color: #64748b; }
+              .meta { font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
+              .content { font-size: 13.5px; line-height: 1.8; text-align: justify; }
+              .badge { display: inline-block; background: #d1ecf1; color: #0c5460; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 99px; margin-bottom: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="page">
+              <div class="kop">
+                <h2>INSTANSI PENGELOLAAN ARSIP DIGITAL (APSIR)</h2>
+                <p>Dokumen Elektronik Tersimpan di Google Drive • ID File: ${escapeHtml(fileId)}</p>
+              </div>
+              <span class="badge">PRATINJAU DOKUMEN ELEKTRONIK</span>
+              <div class="meta">
+                <strong>Nomor Surat:</strong> ${escapeHtml(archiveItem.nomorSurat)}<br/>
+                <strong>Tanggal Surat:</strong> ${escapeHtml(archiveItem.tanggalSurat)}<br/>
+                <strong>Kategori:</strong> ${escapeHtml(archiveItem.kategoriNama)}<br/>
+                <strong>Perihal:</strong> ${escapeHtml(archiveItem.namaSurat)}
+              </div>
+              <div class="content">
+                <p>${escapeHtml(archiveItem.keterangan || 'Dokumen surat resmi telah terarsip secara digital.')}</p>
+                <p>Saat Anda memasukkan tautan berbagi <strong>Google Drive</strong> asli, jendela ini otomatis menampilkan pratinjau asli PDF/Dokumen langsung dari server Google Drive (<code>/file/d/FILE_ID/preview</code>).</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        iframe.srcdoc = docHtml;
+      } else {
+        iframe.removeAttribute('srcdoc');
+        iframe.src = `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`;
+      }
+
+      document.getElementById('modal-drive-preview').classList.remove('hidden');
+    }
+
+    // ==================== OPERASI CRUD KATEGORI SURAT (ADMIN ONLY) ====================
+    function openCategoryModal(editItem = null) {
+      document.getElementById('form-category').reset();
+      if (editItem) {
+        document.getElementById('modal-category-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i><span>Ubah Kategori Surat</span>`;
+        document.getElementById('category-id').value = editItem.id;
+        document.getElementById('category-nama').value = editItem.namaKategori || '';
+        document.getElementById('category-deskripsi').value = editItem.deskripsi || '';
+      } else {
+        document.getElementById('modal-category-title').innerHTML = `<i class="fa-solid fa-layer-group"></i><span>Tambah Kategori Surat</span>`;
+        document.getElementById('category-id').value = '';
+      }
+      document.getElementById('modal-category').classList.remove('hidden');
+    }
+
+    async function handleSaveCategory(e) {
+      e.preventDefault();
+      const id = document.getElementById('category-id').value;
+      const namaKategori = document.getElementById('category-nama').value.trim();
+      const deskripsi = document.getElementById('category-deskripsi').value.trim();
+
+      const payload = {
+        namaKategori,
+        deskripsi,
+        createdAt: Date.now()
+      };
+
+      try {
+        if (IS_PREVIEW === true) {
+          if (id) {
+            const idx = categoriesData.findIndex((c) => c.id === id);
+            if (idx !== -1) categoriesData[idx] = { ...categoriesData[idx], ...payload };
+            // Update juga nama kategori pada arsip terkait
+            archivesData.forEach((a) => {
+              if (a.kategoriId === id) a.kategoriNama = namaKategori;
+            });
+            showToast('Kategori surat berhasil diperbarui.');
+          } else {
+            categoriesData.push({ id: 'cat-' + Date.now(), ...payload });
+            showToast('Kategori surat baru berhasil ditambahkan.');
+          }
+          refreshAllViews();
+        } else {
+          if (id) {
+            await updateDoc(doc(db, 'categories', id), payload);
+            showToast('Kategori surat berhasil diperbarui di Firestore.');
+          } else {
+            await addDoc(collection(db, 'categories'), payload);
+            showToast('Kategori surat baru berhasil ditambahkan ke Firestore.');
+          }
+        }
+        document.getElementById('modal-category').classList.add('hidden');
+      } catch (err) {
+        showToast('Gagal menyimpan kategori: ' + err.message, 'error');
+      }
+    }
+
+    // ==================== OPERASI CRUD MANAJEMEN USER (ADMIN ONLY) ====================
+    function openUserModal(editItem = null) {
+      document.getElementById('form-user').reset();
+      if (editItem) {
+        document.getElementById('modal-user-title').innerHTML = `<i class="fa-solid fa-user-pen"></i><span>Ubah Data Pengguna</span>`;
+        document.getElementById('user-id').value = editItem.id;
+        document.getElementById('user-nama').value = editItem.namaLengkap || '';
+        document.getElementById('user-username').value = editItem.username || '';
+        document.getElementById('user-password').value = editItem.password || '';
+        document.getElementById('user-jabatan').value = editItem.jabatan || '';
+      } else {
+        document.getElementById('modal-user-title').innerHTML = `<i class="fa-solid fa-user-plus"></i><span>Tambah Pengguna Aplikasi</span>`;
+        document.getElementById('user-id').value = '';
+      }
+      document.getElementById('modal-user').classList.remove('hidden');
+    }
+
+    async function handleSaveUser(e) {
+      e.preventDefault();
+      const id = document.getElementById('user-id').value;
+      const namaLengkap = document.getElementById('user-nama').value.trim();
+      const username = document.getElementById('user-username').value.trim();
+      const password = document.getElementById('user-password').value;
+      const jabatan = document.getElementById('user-jabatan').value.trim();
+
+      // Cek duplikasi username
+      const duplicate = usersData.find(
+        (u) => u.username.toLowerCase() === username.toLowerCase() && u.id !== id
+      );
+      if (duplicate) {
+        showToast('Username tersebut sudah digunakan oleh pengguna lain.', 'error');
+        return;
+      }
+
+      const payload = {
+        namaLengkap,
+        username,
+        password,
+        jabatan,
+        role: 'user',
+        createdAt: Date.now()
+      };
+
+      try {
+        if (IS_PREVIEW === true) {
+          if (id) {
+            const idx = usersData.findIndex((u) => u.id === id);
+            if (idx !== -1) usersData[idx] = { ...usersData[idx], ...payload };
+            showToast('Data pengguna berhasil diperbarui.');
+          } else {
+            usersData.push({ id: 'usr-' + Date.now(), ...payload });
+            showToast('Pengguna baru berhasil ditambahkan.');
+          }
+          refreshAllViews();
+        } else {
+          if (id) {
+            await updateDoc(doc(db, 'users', id), payload);
+            showToast('Data pengguna berhasil diperbarui di Firestore.');
+          } else {
+            await addDoc(collection(db, 'users'), payload);
+            showToast('Pengguna baru berhasil ditambahkan ke Firestore.');
+          }
+        }
+        document.getElementById('modal-user').classList.add('hidden');
+      } catch (err) {
+        showToast('Gagal menyimpan pengguna: ' + err.message, 'error');
+      }
+    }
+
+    // ==================== FITUR UBAH PASSWORD (ADMIN & USER) ====================
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const oldPass = document.getElementById('cp-old-password').value;
+      const newPass = document.getElementById('cp-new-password').value;
+      const confirmPass = document.getElementById('cp-confirm-password').value;
+
+      if (newPass !== confirmPass) {
+        showToast('Konfirmasi password baru tidak cocok.', 'error');
+        return;
+      }
+
+      try {
+        if (IS_PREVIEW === true) {
+          if (currentUser.role === 'admin') {
+            if (oldPass !== previewAdminPassword) {
+              showToast('Password saat ini tidak sesuai.', 'error');
+              return;
+            }
+            previewAdminPassword = newPass;
+          } else {
+            const usr = usersData.find((u) => u.id === currentUser.id);
+            if (!usr || usr.password !== oldPass) {
+              showToast('Password saat ini tidak sesuai.', 'error');
+              return;
+            }
+            usr.password = newPass;
+          }
+          document.getElementById('change-password-form').reset();
+          showToast('Password akun Anda berhasil diperbarui.');
+        } else {
+          if (currentUser.role === 'admin') {
+            if (!auth.currentUser) throw new Error('Sesi Admin tidak ditemukan.');
+            await updatePassword(auth.currentUser, newPass);
+            document.getElementById('change-password-form').reset();
+            showToast('Password Firebase Auth Admin berhasil diperbarui.');
+          } else {
+            const usr = usersData.find((u) => u.id === currentUser.id);
+            if (usr && usr.password !== oldPass) {
+              showToast('Password saat ini tidak sesuai.', 'error');
+              return;
+            }
+            await updateDoc(doc(db, 'users', currentUser.id), { password: newPass });
+            document.getElementById('change-password-form').reset();
+            showToast('Password akun Anda berhasil diperbarui di Firestore.');
+          }
+        }
+      } catch (err) {
+        showToast('Gagal mengubah password: ' + err.message, 'error');
+      }
+    }
+
+    // ==================== EVENT LISTENERS BINDING ====================
+    function bindEventListeners() {
+      // Toggle lihat password di halaman login
+      document.getElementById('toggle-login-pass').addEventListener('click', () => {
+        const input = document.getElementById('login-password');
+        const icon = document.querySelector('#toggle-login-pass i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+
+      // Tombol Pengisi Cepat Akun Demo (Hanya saat IS_PREVIEW === true)
+      document.getElementById('btn-fill-admin').addEventListener('click', () => {
+        document.getElementById('login-identity').value = 'admin@apsir.id';
+        document.getElementById('login-password').value = previewAdminPassword;
+      });
+      document.getElementById('btn-fill-user').addEventListener('click', () => {
+        document.getElementById('login-identity').value = 'staf01';
+        document.getElementById('login-password').value = 'user123';
+      });
+
+      // Submit Form Login
+      document.getElementById('login-form').addEventListener('submit', handleLoginSubmit);
+
+      // Tombol Logout
+      document.getElementById('btn-sidebar-logout').addEventListener('click', handleLogout);
+      document.getElementById('btn-topbar-logout').addEventListener('click', handleLogout);
+
+      // Collapse Sidebar Desktop
+      document.getElementById('btn-collapse-sidebar').addEventListener('click', () => {
+        const sidebar = document.getElementById('desktop-sidebar');
+        const icon = document.getElementById('collapse-icon');
+        sidebar.classList.toggle('sidebar-collapsed');
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+          icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+        } else {
+          icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
+        }
+        setTimeout(() => drawCategoryBarChart(), 260);
+      });
+
+      // Navigasi Menu Sidebar & Mobile Bottom Bar
+      document.querySelectorAll('.nav-trigger').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-nav');
+          switchMenu(target);
+        });
+      });
+
+      // Klik Kartu Ringkasan di Dashboard
+      document.querySelectorAll('[data-goto]').forEach((card) => {
+        card.addEventListener('click', () => {
+          const target = card.getAttribute('data-goto');
+          if (currentUser && currentUser.role !== 'admin' && target !== 'archives') {
+            return;
+          }
+          switchMenu(target);
+        });
+      });
+
+      // Pencarian Arsip Cerdas Global di Topbar (Sesuai Gambar 1)
+      document.getElementById('global-search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = document.getElementById('global-search-input').value;
+        archiveSearchText = q;
+        document.getElementById('archive-search-input').value = q;
+        document.getElementById('btn-clear-archive-search').classList.toggle('hidden', !q);
+        switchMenu('archives');
+        renderArchivesTable();
+      });
+
+      document.getElementById('global-search-input').addEventListener('input', (e) => {
+        const q = e.target.value;
+        archiveSearchText = q;
+        document.getElementById('archive-search-input').value = q;
+        document.getElementById('btn-clear-archive-search').classList.toggle('hidden', !q);
+        if (currentView !== 'archives' && q.trim().length > 0) {
+          switchMenu('archives');
+        }
+        renderArchivesTable();
+      });
+
+      // Filter & Pencarian di Halaman Arsip Surat
+      document.getElementById('archive-search-input').addEventListener('input', (e) => {
+        archiveSearchText = e.target.value;
+        document.getElementById('global-search-input').value = archiveSearchText;
+        document.getElementById('btn-clear-archive-search').classList.toggle('hidden', !archiveSearchText);
+        renderArchivesTable();
+      });
+
+      document.getElementById('btn-clear-archive-search').addEventListener('click', () => {
+        archiveSearchText = '';
+        document.getElementById('archive-search-input').value = '';
+        document.getElementById('global-search-input').value = '';
+        document.getElementById('btn-clear-archive-search').classList.add('hidden');
+        renderArchivesTable();
+      });
+
+      document.getElementById('archive-category-filter').addEventListener('change', (e) => {
+        archiveCategoryFilter = e.target.value;
+        renderArchivesTable();
+      });
+
+      // Pencarian Kategori & User
+      document.getElementById('category-search-input').addEventListener('input', (e) => {
+        categorySearchText = e.target.value;
+        renderCategoriesTable();
+      });
+      document.getElementById('user-search-input').addEventListener('input', (e) => {
+        userSearchText = e.target.value;
+        renderUsersTable();
+      });
+
+      // Tombol Buka Modal Tambah
+      document.getElementById('btn-add-archive').addEventListener('click', () => openArchiveModal());
+      document.getElementById('btn-add-category').addEventListener('click', () => openCategoryModal());
+      document.getElementById('btn-add-user').addEventListener('click', () => openUserModal());
+
+      // Submit Form CRUD
+      document.getElementById('form-archive').addEventListener('submit', handleSaveArchive);
+      document.getElementById('form-category').addEventListener('submit', handleSaveCategory);
+      document.getElementById('form-user').addEventListener('submit', handleSaveUser);
+      document.getElementById('change-password-form').addEventListener('submit', handleChangePassword);
+
+      // Penutup Modal
+      document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const modalId = btn.getAttribute('data-close-modal');
+          document.getElementById(modalId).classList.add('hidden');
+          if (modalId === 'modal-drive-preview') {
+            const iframe = document.getElementById('drive-preview-iframe');
+            iframe.removeAttribute('srcdoc');
+            iframe.src = 'about:blank';
+          }
+        });
+      });
+
+      // Delegasi Klik Aksi Tabel (Arsip, Kategori, User)
+      document.getElementById('archives-table-body').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const item = archivesData.find((a) => a.id === id);
+        if (!item) return;
+
+        if (action === 'preview-drive') {
+          openDrivePreviewModal(item);
+        } else if (action === 'edit-archive') {
+          openArchiveModal(item);
+        } else if (action === 'delete-archive') {
+          openConfirmModal(
+            'Hapus Arsip Surat',
+            `Apakah Anda yakin ingin menghapus arsip "${item.namaSurat}" (${item.nomorSurat})?`,
+            async () => {
+              if (IS_PREVIEW === true) {
+                archivesData = archivesData.filter((a) => a.id !== id);
+                refreshAllViews();
+                showToast('Arsip surat berhasil dihapus.');
+              } else {
+                await deleteDoc(doc(db, 'archives', id));
+                showToast('Arsip surat berhasil dihapus dari Firestore.');
+              }
+            }
+          );
+        }
+      });
+
+      document.getElementById('categories-table-body').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const item = categoriesData.find((c) => c.id === id);
+        if (!item) return;
+
+        if (action === 'edit-category') {
+          openCategoryModal(item);
+        } else if (action === 'delete-category') {
+          openConfirmModal(
+            'Hapus Kategori Surat',
+            `Hapus kategori "${item.namaKategori}"?`,
+            async () => {
+              if (IS_PREVIEW === true) {
+                categoriesData = categoriesData.filter((c) => c.id !== id);
+                refreshAllViews();
+                showToast('Kategori surat berhasil dihapus.');
+              } else {
+                await deleteDoc(doc(db, 'categories', id));
+                showToast('Kategori surat berhasil dihapus dari Firestore.');
+              }
+            }
+          );
+        }
+      });
+
+      document.getElementById('users-table-body').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const item = usersData.find((u) => u.id === id);
+        if (!item) return;
+
+        if (action === 'edit-user') {
+          openUserModal(item);
+        } else if (action === 'delete-user') {
+          openConfirmModal(
+            'Hapus Pengguna Aplikasi',
+            `Cabut akses dan hapus pengguna "${item.namaLengkap}" (@${item.username})?`,
+            async () => {
+              if (IS_PREVIEW === true) {
+                usersData = usersData.filter((u) => u.id !== id);
+                refreshAllViews();
+                showToast('Pengguna berhasil dihapus.');
+              } else {
+                await deleteDoc(doc(db, 'users', id));
+                showToast('Pengguna berhasil dihapus dari Firestore.');
+              }
+            }
+          );
+        }
+      });
+
+      // Tombol Modal Konfirmasi
+      document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+        pendingConfirmAction = null;
+        document.getElementById('modal-confirm').classList.add('hidden');
+      });
+
+      document.getElementById('btn-confirm-ok').addEventListener('click', async () => {
+        if (typeof pendingConfirmAction === 'function') {
+          try {
+            await pendingConfirmAction();
+          } catch (err) {
+            showToast('Terjadi kesalahan: ' + err.message, 'error');
+          }
+        }
+        pendingConfirmAction = null;
+        document.getElementById('modal-confirm').classList.add('hidden');
+      });
+
+      // Redraw Grafik saat ukuran layar berubah
+      window.addEventListener('resize', () => {
+        if (currentView === 'dashboard' && currentUser) {
+          drawCategoryBarChart();
+        }
+      });
+    }
+
+    // Jalankan Aplikasi saat DOM siap
+    window.addEventListener('DOMContentLoaded', initializeApplication);
+  </script>
+</body>
+</html>
