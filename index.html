@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>APSIR - Aplikasi Pengelolaan Arsip Surat Digital</title>
 
   <!-- PWA Manifest Data URI (1-File Standard) -->
@@ -52,6 +52,9 @@
       inset: 0;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
       z-index: 99999;
       background-color: #F4F6F9;
       overflow: hidden;
@@ -102,7 +105,227 @@
         display: flex !important;
       }
       .main-scroll-area {
-        padding-bottom: 5.5rem !important;
+        padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+      }
+
+      /* ---- Input 16px: cegah auto-zoom iOS saat fokus ---- */
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+      button, a, select {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* ---- Login ---- */
+      #login-screen {
+        padding: 0.75rem !important;
+      }
+
+      /* ---- Topbar ---- */
+      header form#global-search-form {
+        min-width: 0;
+        max-width: none !important;
+      }
+      header form#global-search-form input {
+        min-width: 0;
+      }
+
+      /* ---- Dashboard ---- */
+      #view-dashboard > div:first-child {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      #chart-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      #category-bar-chart {
+        display: block;
+      }
+
+      /* ---- Bottom Navigation: melayang, rapi, mudah disentuh ---- */
+      .mobile-bottom-nav {
+        left: 0.75rem !important;
+        right: 0.75rem !important;
+        bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        padding: 0.375rem !important;
+        gap: 0.25rem;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.28);
+      }
+      .mobile-bottom-nav .nav-trigger {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 3.25rem;
+        border-radius: 0.9rem;
+        transition: background-color 0.2s, color 0.2s;
+      }
+      .mobile-bottom-nav .nav-trigger span {
+        max-width: 100%;
+        font-size: 10px;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ---- Toast: di atas bottom nav, tidak terpotong ---- */
+      #toast-container {
+        left: 0 !important;
+        right: 0 !important;
+        max-width: none !important;
+        bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        padding: 0 1rem !important;
+      }
+
+      /* ---- Tabel -> Kartu (tanpa scroll horizontal) ---- */
+      .responsive-table,
+      .responsive-table tbody {
+        display: block;
+        width: 100%;
+      }
+      .responsive-table thead {
+        display: none;
+      }
+      .responsive-table tbody {
+        padding: 0.625rem;
+        border: 0 !important;
+      }
+      .responsive-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.875rem;
+        padding: 0.25rem 0.875rem;
+        margin-bottom: 0.625rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      }
+      .responsive-table tbody tr:last-child {
+        margin-bottom: 0;
+      }
+      .responsive-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.875rem;
+        padding: 0.6rem 0 !important;
+        border-bottom: 1px dashed #e8edf3;
+        text-align: right;
+        white-space: normal !important;
+      }
+      .responsive-table td:last-child {
+        border-bottom: 0;
+      }
+      .responsive-table td::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        max-width: 38%;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #94a3b8;
+      }
+      .responsive-table .cell-val {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .responsive-table .cell-no {
+        display: none;
+      }
+      .responsive-table .cell-title {
+        order: -1;
+        display: block;
+        text-align: left;
+        padding-top: 0.75rem !important;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .responsive-table .cell-title::before {
+        display: none;
+      }
+      .responsive-table .cell-title .cell-val {
+        text-align: left;
+      }
+      .responsive-table .cell-actions {
+        justify-content: flex-end;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.625rem !important;
+      }
+      .responsive-table .cell-actions::before {
+        display: none;
+      }
+      .responsive-table .cell-actions button {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        border-radius: 0.75rem !important;
+      }
+      .responsive-table td.empty-cell {
+        display: block;
+        text-align: center;
+        border-bottom: 0;
+      }
+      .responsive-table td.empty-cell::before {
+        display: none;
+      }
+
+      /* ---- Modal form: bottom sheet ---- */
+      #modal-archive,
+      #modal-category,
+      #modal-user {
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+      #modal-archive > div,
+      #modal-category > div,
+      #modal-user > div {
+        max-width: none !important;
+        max-height: 92vh;
+        max-height: 92dvh;
+        overflow-y: auto;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        -webkit-overflow-scrolling: touch;
+      }
+      #modal-archive > div > div:first-child,
+      #modal-category > div > div:first-child,
+      #modal-user > div > div:first-child {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+      #modal-archive form > div:last-child,
+      #modal-category form > div:last-child,
+      #modal-user form > div:last-child {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding-bottom: 0.5rem;
+      }
+      #modal-archive form > div:last-child button,
+      #modal-category form > div:last-child button,
+      #modal-user form > div:last-child button {
+        flex: 1;
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+      }
+
+      /* ---- Modal pratinjau dokumen: layar penuh ---- */
+      #modal-drive-preview {
+        padding: 0 !important;
+      }
+      #modal-drive-preview > div {
+        max-width: none !important;
+        width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        border-radius: 0 !important;
       }
     }
     @media (min-width: 768px) {
@@ -565,7 +788,7 @@
             <!-- Tabel Daftar Arsip Surat -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
               <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="responsive-table w-full text-left border-collapse">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                       <th class="py-3.5 px-4 w-12">No</th>
@@ -621,7 +844,7 @@
             <!-- Tabel Kategori Surat -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
               <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="responsive-table w-full text-left border-collapse">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                       <th class="py-3.5 px-4 w-14">No</th>
@@ -675,7 +898,7 @@
             <!-- Tabel Pengguna -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
               <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="responsive-table w-full text-left border-collapse">
                   <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
                       <th class="py-3.5 px-4 w-14">No</th>
@@ -1474,8 +1697,18 @@
       const canvas = document.getElementById('category-bar-chart');
       if (!canvas) return;
       const parent = canvas.parentElement;
-      const width = parent.clientWidth || 600;
+      const isMobile = window.innerWidth < 768;
+      const visibleWidth = parent.clientWidth || 600;
+      // Di HP: beri lebar minimum per kategori agar label tidak bertumpuk (grafik bisa digeser)
+      const width = isMobile ? Math.max(visibleWidth, 62 + categoriesData.length * 84) : visibleWidth;
       const height = parent.clientHeight || 280;
+      if (isMobile) {
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+      } else {
+        canvas.style.width = '';
+        canvas.style.height = '';
+      }
 
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
@@ -1551,7 +1784,8 @@
         ctx.fillStyle = '#475569';
         ctx.font = '600 11px Nunito, sans-serif';
         ctx.textAlign = 'center';
-        const shortLabel = label.length > 18 ? label.slice(0, 16) + '…' : label;
+        const maxChars = isMobile ? Math.max(8, Math.floor(slotWidth / 6.5)) : 18;
+        const shortLabel = label.length > maxChars ? label.slice(0, maxChars - 2) + '…' : label;
         ctx.fillText(shortLabel, x + barWidth / 2, chartBottom + 20);
       });
     }
@@ -1604,7 +1838,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="py-12 px-4 text-center text-slate-400">
+            <td colspan="7" class="empty-cell py-12 px-4 text-center text-slate-400">
               <i class="fa-regular fa-folder-open text-3xl mb-2 block text-slate-300"></i>
               <p class="font-bold text-slate-600 text-sm">Belum ada data arsip surat yang ditemukan</p>
               <p class="text-xs mt-0.5">Klik tombol "+ Arsipkan Surat Baru" untuk menyimpan arsip surat ke sistem.</p>
@@ -1618,39 +1852,47 @@
         .map(
           (item, index) => `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3.5 px-4 font-bold text-slate-500">${index + 1}</td>
-            <td class="py-3.5 px-4">
-              <span class="font-extrabold text-slate-700 block">${escapeHtml(item.nomorSurat)}</span>
-              <span class="text-[11px] text-slate-400">Oleh: ${escapeHtml(item.uploadedBy || 'Admin')}</span>
+            <td data-label="No" class="cell-no py-3.5 px-4 font-bold text-slate-500">${index + 1}</td>
+            <td data-label="Nomor Surat" class="py-3.5 px-4">
+              <div class="cell-val">
+                <span class="font-extrabold text-slate-700 block">${escapeHtml(item.nomorSurat)}</span>
+                <span class="text-[11px] text-slate-400">Oleh: ${escapeHtml(item.uploadedBy || 'Admin')}</span>
+              </div>
             </td>
-            <td class="py-3.5 px-4">
-              <div class="font-bold text-slate-700">${escapeHtml(item.namaSurat)}</div>
-              ${
-                item.keterangan
-                  ? `<div class="text-[11px] text-slate-400 line-clamp-1">${escapeHtml(item.keterangan)}</div>`
-                  : ''
-              }
+            <td data-label="Perihal" class="cell-title py-3.5 px-4">
+              <div class="cell-val">
+                <div class="font-bold text-slate-700">${escapeHtml(item.namaSurat)}</div>
+                ${
+                  item.keterangan
+                    ? `<div class="text-[11px] text-slate-400 line-clamp-1">${escapeHtml(item.keterangan)}</div>`
+                    : ''
+                }
+              </div>
             </td>
-            <td class="py-3.5 px-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-50 text-[#17A2B8] border border-cyan-200">
-                ${escapeHtml(item.kategoriNama || 'Umum')}
-              </span>
+            <td data-label="Kategori" class="py-3.5 px-4">
+              <div class="cell-val">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-50 text-[#17A2B8] border border-cyan-200">
+                  ${escapeHtml(item.kategoriNama || 'Umum')}
+                </span>
+              </div>
             </td>
-            <td class="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">
-              ${escapeHtml(item.tanggalSurat || '-')}
+            <td data-label="Tgl. Surat" class="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">
+              <div class="cell-val">${escapeHtml(item.tanggalSurat || '-')}</div>
             </td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
-              <button
-                type="button"
-                data-action="preview-drive"
-                data-id="${escapeHtml(item.id)}"
-                class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs inline-flex items-center gap-1.5 transition"
-              >
-                <i class="fa-brands fa-google-drive"></i>
-                <span>Lihat Dokumen</span>
-              </button>
+            <td data-label="Dokumen" class="py-3.5 px-4 whitespace-nowrap">
+              <div class="cell-val">
+                <button
+                  type="button"
+                  data-action="preview-drive"
+                  data-id="${escapeHtml(item.id)}"
+                  class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs inline-flex items-center gap-1.5 transition"
+                >
+                  <i class="fa-brands fa-google-drive"></i>
+                  <span>Lihat Dokumen</span>
+                </button>
+              </div>
             </td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <td data-label="Aksi" class="cell-actions py-3.5 px-4 text-center whitespace-nowrap">
               <div class="inline-flex items-center gap-1.5">
                 <button
                   type="button"
@@ -1693,7 +1935,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" class="py-10 px-4 text-center text-slate-400">
+            <td colspan="5" class="empty-cell py-10 px-4 text-center text-slate-400">
               <p class="font-bold text-slate-600 text-sm">Belum ada data kategori surat</p>
             </td>
           </tr>
@@ -1708,15 +1950,21 @@
           ).length;
           return `
             <tr class="hover:bg-slate-50/80 transition">
-              <td class="py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
-              <td class="py-3.5 px-4 font-extrabold text-slate-700">${escapeHtml(cat.namaKategori)}</td>
-              <td class="py-3.5 px-4 text-slate-500">${escapeHtml(cat.deskripsi || '-')}</td>
-              <td class="py-3.5 px-4 text-center">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700">
-                  ${count} Surat
-                </span>
+              <td data-label="No" class="cell-no py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
+              <td data-label="Kategori" class="cell-title py-3.5 px-4 font-extrabold text-slate-700">
+                <div class="cell-val">${escapeHtml(cat.namaKategori)}</div>
               </td>
-              <td class="py-3.5 px-4 text-center">
+              <td data-label="Deskripsi" class="py-3.5 px-4 text-slate-500">
+                <div class="cell-val">${escapeHtml(cat.deskripsi || '-')}</div>
+              </td>
+              <td data-label="Jumlah Surat" class="py-3.5 px-4 text-center">
+                <div class="cell-val">
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700">
+                    ${count} Surat
+                  </span>
+                </div>
+              </td>
+              <td data-label="Aksi" class="cell-actions py-3.5 px-4 text-center">
                 <div class="inline-flex items-center gap-1.5">
                   <button
                     type="button"
@@ -1760,7 +2008,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-10 px-4 text-center text-slate-400">
+            <td colspan="6" class="empty-cell py-10 px-4 text-center text-slate-400">
               <p class="font-bold text-slate-600 text-sm">Belum ada data pengguna operasional</p>
             </td>
           </tr>
@@ -1772,18 +2020,26 @@
         .map(
           (usr, idx) => `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
-            <td class="py-3.5 px-4 font-extrabold text-slate-700">${escapeHtml(usr.namaLengkap)}</td>
-            <td class="py-3.5 px-4">
-              <code class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">${escapeHtml(usr.username)}</code>
+            <td data-label="No" class="cell-no py-3.5 px-4 font-bold text-slate-500">${idx + 1}</td>
+            <td data-label="Nama" class="cell-title py-3.5 px-4 font-extrabold text-slate-700">
+              <div class="cell-val">${escapeHtml(usr.namaLengkap)}</div>
             </td>
-            <td class="py-3.5 px-4 text-slate-600">${escapeHtml(usr.jabatan || '-')}</td>
-            <td class="py-3.5 px-4">
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                User Operasional
-              </span>
+            <td data-label="Username" class="py-3.5 px-4">
+              <div class="cell-val">
+                <code class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">${escapeHtml(usr.username)}</code>
+              </div>
             </td>
-            <td class="py-3.5 px-4 text-center">
+            <td data-label="Jabatan" class="py-3.5 px-4 text-slate-600">
+              <div class="cell-val">${escapeHtml(usr.jabatan || '-')}</div>
+            </td>
+            <td data-label="Hak Akses" class="py-3.5 px-4">
+              <div class="cell-val">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  User Operasional
+                </span>
+              </div>
+            </td>
+            <td data-label="Aksi" class="cell-actions py-3.5 px-4 text-center">
               <div class="inline-flex items-center gap-1.5">
                 <button
                   type="button"
