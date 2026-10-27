@@ -165,6 +165,10 @@
         border-radius: 0.9rem;
         transition: background-color 0.2s, color 0.2s;
       }
+      .mobile-bottom-nav .nav-trigger {
+        padding-left: 0.15rem !important;
+        padding-right: 0.15rem !important;
+      }
       .mobile-bottom-nav .nav-trigger span {
         max-width: 100%;
         font-size: 10px;
@@ -568,6 +572,16 @@
             >
               <i class="fa-solid fa-user-gear w-5 text-center text-base"></i>
               <span class="sidebar-text">Manajemen User</span>
+            </button>
+
+            <!-- Backup & Restore (Khusus Admin) -->
+            <button
+              type="button"
+              data-nav="backup"
+              class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+            >
+              <i class="fa-solid fa-database w-5 text-center text-base"></i>
+              <span class="sidebar-text">Backup &amp; Restore</span>
             </button>
 
             <!-- Ubah Password (Admin & User) -->
@@ -978,6 +992,125 @@
             </div>
           </section>
 
+          <!-- ==================== VIEW 6: BACKUP & RESTORE (KHUSUS ADMIN) ==================== -->
+          <section id="view-backup" class="hidden space-y-5 animate-fade-in">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
+                <i class="fa-solid fa-database text-[#17A2B8]"></i>
+                <span>Backup &amp; Restore</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">Cadangkan seluruh data aplikasi ke file JSON dan pulihkan kembali bila diperlukan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+              <!-- Kartu Backup -->
+              <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
+                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+                  <i class="fa-solid fa-cloud-arrow-down text-[#17A2B8]"></i>
+                  <span class="text-xs font-bold text-[#17A2B8] uppercase tracking-wider">Backup Data</span>
+                </div>
+                <div class="p-5 space-y-4 flex-1">
+                  <p class="text-xs sm:text-sm text-slate-600">
+                    Unduh seluruh data (arsip surat, kategori surat, dan pengguna) sebagai satu file <strong>.json</strong>.
+                  </p>
+                  <div class="grid grid-cols-3 gap-2.5">
+                    <div class="rounded-lg bg-cyan-50 border border-cyan-100 p-3 text-center">
+                      <div id="bk-count-archives" class="text-xl font-extrabold text-[#0F6674]">0</div>
+                      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">Arsip</div>
+                    </div>
+                    <div class="rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-center">
+                      <div id="bk-count-categories" class="text-xl font-extrabold text-emerald-700">0</div>
+                      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">Kategori</div>
+                    </div>
+                    <div class="rounded-lg bg-amber-50 border border-amber-100 p-3 text-center">
+                      <div id="bk-count-users" class="text-xl font-extrabold text-amber-600">0</div>
+                      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">User</div>
+                    </div>
+                  </div>
+                  <div class="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] sm:text-xs px-3.5 py-2.5 flex gap-2">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
+                    <span>File backup memuat data akun pengguna termasuk password. Simpan di tempat yang aman dan jangan dibagikan.</span>
+                  </div>
+                </div>
+                <div class="px-5 pb-5">
+                  <button
+                    type="button"
+                    id="btn-backup-download"
+                    class="w-full bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-lg shadow-sm transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-download"></i>
+                    <span>Unduh File Backup</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Kartu Restore -->
+              <div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden flex flex-col">
+                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+                  <i class="fa-solid fa-cloud-arrow-up text-[#1CC88A]"></i>
+                  <span class="text-xs font-bold text-[#1CC88A] uppercase tracking-wider">Restore Data</span>
+                </div>
+                <div class="p-5 space-y-4 flex-1">
+                  <p class="text-xs sm:text-sm text-slate-600">
+                    Pilih file backup <strong>.json</strong> yang sebelumnya diunduh dari aplikasi ini.
+                  </p>
+
+                  <input type="file" id="restore-file-input" accept=".json,application/json" class="hidden" />
+                  <button
+                    type="button"
+                    id="btn-restore-pick"
+                    class="w-full border-2 border-dashed border-slate-300 hover:border-[#17A2B8] hover:bg-cyan-50/50 rounded-lg px-4 py-4 text-slate-500 text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-file-import text-[#17A2B8]"></i>
+                    <span id="restore-file-label" class="truncate">Pilih File Backup (.json)</span>
+                  </button>
+
+                  <!-- Ringkasan isi file backup -->
+                  <div id="restore-summary" class="hidden rounded-lg bg-slate-50 border border-slate-200 p-3.5 text-xs text-slate-600 space-y-2">
+                    <div class="font-bold text-slate-700 flex items-center gap-1.5">
+                      <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                      <span>File backup valid</span>
+                    </div>
+                    <div id="restore-summary-meta" class="text-[11px] text-slate-500"></div>
+                    <div id="restore-summary-counts" class="grid grid-cols-3 gap-2 text-center"></div>
+                    <div id="restore-summary-warning" class="hidden text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5"></div>
+                  </div>
+
+                  <!-- Mode Restore -->
+                  <div id="restore-mode-box" class="hidden space-y-2">
+                    <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 hover:border-[#17A2B8] cursor-pointer text-xs">
+                      <input type="radio" name="restore-mode" value="merge" checked class="mt-0.5 accent-[#17A2B8]" />
+                      <span>
+                        <span class="font-bold text-slate-700 block">Gabungkan (disarankan)</span>
+                        <span class="text-slate-500">Data dari backup ditambahkan atau menimpa data dengan ID yang sama. Data lain tetap aman.</span>
+                      </span>
+                    </label>
+                    <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 hover:border-rose-400 cursor-pointer text-xs">
+                      <input type="radio" name="restore-mode" value="replace" class="mt-0.5 accent-rose-600" />
+                      <span>
+                        <span class="font-bold text-rose-600 block">Ganti total</span>
+                        <span class="text-slate-500">Seluruh data saat ini dihapus lalu diganti persis seperti isi file backup.</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="px-5 pb-5">
+                  <button
+                    type="button"
+                    id="btn-restore-run"
+                    disabled
+                    class="w-full bg-[#1CC88A] hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-lg shadow-sm transition flex items-center justify-center gap-2"
+                  >
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Pulihkan Data</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
         </main>
 
         <!-- BOTTOM NAVIGATION BAR (Mobile Only - Glassmorphism) -->
@@ -997,6 +1130,10 @@
           <button type="button" data-nav="users" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
             <i class="fa-solid fa-user-gear text-base"></i>
             <span class="text-[10px] font-bold mt-0.5">User</span>
+          </button>
+          <button type="button" data-nav="backup" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+            <i class="fa-solid fa-database text-base"></i>
+            <span class="text-[10px] font-bold mt-0.5">Backup</span>
           </button>
           <button type="button" data-nav="password" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
             <i class="fa-solid fa-key text-base"></i>
@@ -1238,7 +1375,9 @@
       getDocs,
       query,
       where,
-      onSnapshot
+      onSnapshot,
+      setDoc,
+      writeBatch
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ==================== REGISTRASI SERVICE WORKER PWA DINAMIS (1-FILE BLOB) ====================
@@ -1314,6 +1453,7 @@
             driveFileId: '1DemoFileSKPengelolaArsip2026',
             keterangan: 'Dokumen penetapan struktur pengurus arsip pusat.',
             uploadedBy: 'Admin',
+            uploadedById: 'admin-preview',
             createdAt: Date.now() - 50000
           },
           {
@@ -1326,7 +1466,8 @@
             driveUrl: 'https://drive.google.com/file/d/1DemoFileSuratTugasSosialisasi/view?usp=sharing',
             driveFileId: '1DemoFileSuratTugasSosialisasi',
             keterangan: 'Penugasan staf administrasi untuk pendampingan unit kerja.',
-            uploadedBy: 'Budi Santoso',
+            uploadedBy: 'Budi Santoso, S.AP',
+            uploadedById: 'usr-1',
             createdAt: Date.now()
           }
         ];
@@ -1397,9 +1538,10 @@
       }, 3200);
     }
 
-    function openConfirmModal(title, message, onConfirm) {
+    function openConfirmModal(title, message, onConfirm, okLabel = 'Ya, Hapus') {
       document.getElementById('confirm-title').textContent = title;
       document.getElementById('confirm-message').textContent = message;
+      document.getElementById('btn-confirm-ok').textContent = okLabel;
       pendingConfirmAction = onConfirm;
       document.getElementById('modal-confirm').classList.remove('hidden');
     }
@@ -1630,13 +1772,13 @@
     // ==================== NAVIGASI ANTAR MENU ====================
     function switchMenu(targetView) {
       // Proteksi Hak Akses: User tidak boleh membuka menu categories atau users
-      if (currentUser && currentUser.role !== 'admin' && (targetView === 'categories' || targetView === 'users')) {
+      if (currentUser && currentUser.role !== 'admin' && (targetView === 'categories' || targetView === 'users' || targetView === 'backup')) {
         showToast('Akses dibatasi. Menu tersebut khusus untuk Administrator.', 'error');
         return;
       }
 
       currentView = targetView;
-      const views = ['dashboard', 'archives', 'categories', 'users', 'password'];
+      const views = ['dashboard', 'archives', 'categories', 'users', 'backup', 'password'];
       views.forEach((v) => {
         const section = document.getElementById(`view-${v}`);
         if (section) {
@@ -1675,8 +1817,23 @@
     }
 
     // ==================== RENDER SELURUH DATA KE UI ====================
+    // Pengurutan data: arsip = tanggal surat terbaru, kategori & user = A-Z (ascending)
+    const textCollator = new Intl.Collator('id', { sensitivity: 'base', numeric: true });
+    function sortCollections() {
+      categoriesData.sort((a, b) => textCollator.compare(a.namaKategori || '', b.namaKategori || ''));
+      usersData.sort((a, b) => textCollator.compare(a.namaLengkap || '', b.namaLengkap || ''));
+      archivesData.sort((a, b) => {
+        const dateA = a.tanggalSurat || '';
+        const dateB = b.tanggalSurat || '';
+        if (dateA !== dateB) return dateA < dateB ? 1 : -1;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+    }
+
     function refreshAllViews() {
       if (!currentUser) return;
+      sortCollections();
+      updateBackupCounts();
       renderDashboardStatsAndChart();
       populateCategoryDropdowns();
       renderArchivesTable();
@@ -1893,7 +2050,9 @@
               </div>
             </td>
             <td data-label="Aksi" class="cell-actions py-3.5 px-4 text-center whitespace-nowrap">
-              <div class="inline-flex items-center gap-1.5">
+              ${
+                canManageArchive(item)
+                  ? `<div class="inline-flex items-center gap-1.5">
                 <button
                   type="button"
                   data-action="edit-archive"
@@ -1912,7 +2071,9 @@
                 >
                   <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
-              </div>
+              </div>`
+                  : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 text-slate-400 border border-slate-200 text-[11px] font-bold" title="Surat ini milik pengguna lain. Hanya pemilik atau Admin yang dapat mengubah atau menghapus."><i class="fa-solid fa-lock text-[10px]"></i><span>Surat pengguna lain</span></span>`
+              }
             </td>
           </tr>
         `
@@ -2067,6 +2228,319 @@
         .join('');
     }
 
+    // ==================== BACKUP & RESTORE (KHUSUS ADMIN) ====================
+    const BACKUP_APP_ID = 'APSIR-BACKUP';
+    const BACKUP_COLLECTIONS = ['categories', 'archives', 'users'];
+    let pendingRestore = null; // { clean, fileName }
+
+    function updateBackupCounts() {
+      const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = v;
+      };
+      set('bk-count-archives', archivesData.length);
+      set('bk-count-categories', categoriesData.length);
+      set('bk-count-users', usersData.length);
+    }
+
+    // Ambil seluruh data terkini (Preview: memori, Produksi: langsung dari Firestore)
+    async function collectBackupData() {
+      if (IS_PREVIEW === true) {
+        return JSON.parse(
+          JSON.stringify({ categories: categoriesData, archives: archivesData, users: usersData })
+        );
+      }
+      if (!db) throw new Error('Koneksi Firebase belum terinisialisasi.');
+      const snaps = await Promise.all(BACKUP_COLLECTIONS.map((name) => getDocs(collection(db, name))));
+      const toList = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      return { categories: toList(snaps[0]), archives: toList(snaps[1]), users: toList(snaps[2]) };
+    }
+
+    async function handleBackupDownload() {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('Fitur backup khusus untuk Administrator.', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-backup-download');
+      btn.disabled = true;
+      try {
+        const data = await collectBackupData();
+        const payload = {
+          app: BACKUP_APP_ID,
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          exportedBy: currentUser.namaLengkap,
+          counts: {
+            categories: data.categories.length,
+            archives: data.archives.length,
+            users: data.users.length
+          },
+          data
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-apsir-${stamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        showToast('File backup berhasil dibuat dan diunduh.');
+      } catch (err) {
+        showToast('Gagal membuat backup: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Validasi & bersihkan isi file backup (hanya field yang dikenal yang diterima)
+    function sanitizeBackupData(rawData) {
+      const str = (v) => (v === null || v === undefined ? '' : String(v).trim());
+      const num = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : Date.now());
+      const validId = (v) =>
+        typeof v === 'string' && v.length > 0 && v.length <= 200 && !v.includes('/') && v !== '.' && v !== '..' && !/^__.*__$/.test(v);
+
+      let seq = 0;
+      const clean = { categories: [], archives: [], users: [] };
+      const skipped = { categories: 0, archives: 0, users: 0 };
+
+      const prepare = (name, list, build) => {
+        const seenIds = new Set();
+        (Array.isArray(list) ? list : []).forEach((item) => {
+          if (!item || typeof item !== 'object') {
+            skipped[name]++;
+            return;
+          }
+          const id = validId(item.id) ? item.id : `imp-${Date.now().toString(36)}-${seq++}`;
+          if (seenIds.has(id)) {
+            skipped[name]++;
+            return;
+          }
+          const data = build(item);
+          if (!data) {
+            skipped[name]++;
+            return;
+          }
+          seenIds.add(id);
+          clean[name].push({ id, data });
+        });
+      };
+
+      prepare('categories', rawData.categories, (c) => {
+        const namaKategori = str(c.namaKategori);
+        if (!namaKategori) return null;
+        return { namaKategori, deskripsi: str(c.deskripsi), createdAt: num(c.createdAt) };
+      });
+
+      prepare('archives', rawData.archives, (a) => {
+        const nomorSurat = str(a.nomorSurat);
+        const namaSurat = str(a.namaSurat);
+        const fileId = extractDriveFileId(str(a.driveUrl)) || extractDriveFileId(str(a.driveFileId));
+        if (!nomorSurat || !namaSurat || !fileId) return null;
+        const rawUrl = str(a.driveUrl);
+        const tanggal = str(a.tanggalSurat);
+        return {
+          nomorSurat,
+          namaSurat,
+          tanggalSurat: /^\d{4}-\d{2}-\d{2}$/.test(tanggal) ? tanggal : '',
+          kategoriId: str(a.kategoriId),
+          kategoriNama: str(a.kategoriNama) || 'Umum',
+          driveUrl: /^https:\/\//i.test(rawUrl) ? rawUrl : `https://drive.google.com/file/d/${fileId}/view?usp=sharing`,
+          driveFileId: fileId,
+          keterangan: str(a.keterangan),
+          uploadedBy: str(a.uploadedBy) || 'Admin',
+          uploadedById: str(a.uploadedById),
+          createdAt: num(a.createdAt)
+        };
+      });
+
+      const seenUsernames = new Set();
+      prepare('users', rawData.users, (u) => {
+        const namaLengkap = str(u.namaLengkap);
+        const username = str(u.username);
+        const password = u.password === null || u.password === undefined ? '' : String(u.password);
+        if (!namaLengkap || !username || !password) return null;
+        const key = username.toLowerCase();
+        if (seenUsernames.has(key)) return null;
+        seenUsernames.add(key);
+        return { namaLengkap, username, password, jabatan: str(u.jabatan), role: 'user', createdAt: num(u.createdAt) };
+      });
+
+      return { clean, skipped };
+    }
+
+    function resetRestoreUI() {
+      pendingRestore = null;
+      document.getElementById('restore-file-input').value = '';
+      document.getElementById('restore-file-label').textContent = 'Pilih File Backup (.json)';
+      document.getElementById('restore-summary').classList.add('hidden');
+      document.getElementById('restore-mode-box').classList.add('hidden');
+      document.getElementById('btn-restore-run').disabled = true;
+      const merge = document.querySelector('input[name="restore-mode"][value="merge"]');
+      if (merge) merge.checked = true;
+    }
+
+    async function handleRestoreFileSelected(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      pendingRestore = null;
+      document.getElementById('btn-restore-run').disabled = true;
+
+      try {
+        if (file.size > 25 * 1024 * 1024) throw new Error('Ukuran file terlalu besar (maksimal 25 MB).');
+        let parsed;
+        try {
+          parsed = JSON.parse(await file.text());
+        } catch (_) {
+          throw new Error('File bukan JSON yang valid.');
+        }
+        if (!parsed || parsed.app !== BACKUP_APP_ID || !parsed.data || typeof parsed.data !== 'object') {
+          throw new Error('File ini bukan file backup APSIR.');
+        }
+
+        const { clean, skipped } = sanitizeBackupData(parsed.data);
+        const total = clean.categories.length + clean.archives.length + clean.users.length;
+        if (total === 0) throw new Error('File backup tidak berisi data yang dapat dipulihkan.');
+
+        pendingRestore = { clean, fileName: file.name };
+
+        document.getElementById('restore-file-label').textContent = file.name;
+        const exportedAt = parsed.exportedAt ? new Date(parsed.exportedAt) : null;
+        const metaParts = [];
+        if (exportedAt && !isNaN(exportedAt)) metaParts.push('Dibuat: ' + exportedAt.toLocaleString('id-ID'));
+        if (parsed.exportedBy) metaParts.push('Oleh: ' + parsed.exportedBy);
+        document.getElementById('restore-summary-meta').textContent = metaParts.join(' • ');
+
+        const tile = (label, value, color) =>
+          `<div class="rounded-md bg-white border border-slate-200 py-2"><div class="text-base font-extrabold ${color}">${value}</div><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${label}</div></div>`;
+        document.getElementById('restore-summary-counts').innerHTML =
+          tile('Arsip', clean.archives.length, 'text-[#0F6674]') +
+          tile('Kategori', clean.categories.length, 'text-emerald-700') +
+          tile('User', clean.users.length, 'text-amber-600');
+
+        const skipTotal = skipped.categories + skipped.archives + skipped.users;
+        const warnEl = document.getElementById('restore-summary-warning');
+        if (skipTotal > 0) {
+          warnEl.textContent = `${skipTotal} data tidak valid atau duplikat dan akan dilewati.`;
+          warnEl.classList.remove('hidden');
+        } else {
+          warnEl.classList.add('hidden');
+        }
+
+        document.getElementById('restore-summary').classList.remove('hidden');
+        document.getElementById('restore-mode-box').classList.remove('hidden');
+        document.getElementById('btn-restore-run').disabled = false;
+      } catch (err) {
+        resetRestoreUI();
+        showToast(err.message, 'error');
+      }
+    }
+
+    function handleRestoreRun() {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('Fitur restore khusus untuk Administrator.', 'error');
+        return;
+      }
+      if (!pendingRestore) return;
+      const mode = (document.querySelector('input[name="restore-mode"]:checked') || {}).value || 'merge';
+      const { clean } = pendingRestore;
+      const summary = `${clean.archives.length} arsip, ${clean.categories.length} kategori, ${clean.users.length} user`;
+
+      if (mode === 'replace') {
+        openConfirmModal(
+          'Ganti Total Data',
+          `SEMUA data saat ini akan dihapus dan diganti dengan isi file backup (${summary}). Tindakan ini tidak dapat dibatalkan. Lanjutkan?`,
+          () => executeRestore(clean, 'replace'),
+          'Ya, Ganti Total'
+        );
+      } else {
+        openConfirmModal(
+          'Pulihkan Data',
+          `Data dari file backup (${summary}) akan digabungkan ke data saat ini. Data dengan ID yang sama akan ditimpa. Lanjutkan?`,
+          () => executeRestore(clean, 'merge'),
+          'Ya, Pulihkan'
+        );
+      }
+    }
+
+    async function executeRestore(clean, mode) {
+      const current = await collectBackupData();
+      const final = {};
+      const deletes = [];
+      let skippedUsers = 0;
+
+      BACKUP_COLLECTIONS.forEach((name) => {
+        const base = mode === 'replace' ? [] : current[name];
+        const incoming = clean[name].filter((item) => {
+          if (name !== 'users' || mode === 'replace') return true;
+          // Mode gabung: lewati user yang username-nya sudah dipakai user lain (ID berbeda)
+          const conflict = base.find(
+            (u) => u.id !== item.id && (u.username || '').toLowerCase() === item.data.username.toLowerCase()
+          );
+          if (conflict) skippedUsers++;
+          return !conflict;
+        });
+        const incomingIds = new Set(incoming.map((i) => i.id));
+        if (mode === 'replace') {
+          current[name].forEach((c) => deletes.push({ col: name, id: c.id }));
+        }
+        const kept = base.filter((b) => !incomingIds.has(b.id));
+        final[name] = {
+          incoming,
+          list: kept.concat(incoming.map((i) => ({ id: i.id, ...i.data })))
+        };
+      });
+
+      if (IS_PREVIEW === true) {
+        categoriesData = final.categories.list;
+        archivesData = final.archives.list;
+        usersData = final.users.list;
+        refreshAllViews();
+      } else {
+        if (!db) throw new Error('Koneksi Firebase belum terinisialisasi.');
+        const ops = [];
+        const incomingKeys = new Set();
+        BACKUP_COLLECTIONS.forEach((name) =>
+          final[name].incoming.forEach((i) => {
+            incomingKeys.add(name + '/' + i.id);
+            ops.push({ type: 'set', col: name, id: i.id, data: i.data });
+          })
+        );
+        deletes
+          .filter((d) => !incomingKeys.has(d.col + '/' + d.id))
+          .forEach((d) => ops.push({ type: 'delete', col: d.col, id: d.id }));
+
+        for (let i = 0; i < ops.length; i += 400) {
+          const batch = writeBatch(db);
+          ops.slice(i, i + 400).forEach((op) => {
+            const ref = doc(db, op.col, op.id);
+            if (op.type === 'set') batch.set(ref, op.data);
+            else batch.delete(ref);
+          });
+          await batch.commit();
+        }
+      }
+
+      resetRestoreUI();
+      const msg = `Restore berhasil: ${final.archives.incoming.length} arsip, ${final.categories.incoming.length} kategori, ${final.users.incoming.length - 0} user dipulihkan.`;
+      showToast(skippedUsers > 0 ? `${msg} ${skippedUsers} user dilewati (username sudah dipakai).` : msg);
+    }
+
+
+    // ==================== HAK KELOLA ARSIP (PEMILIK SURAT) ====================
+    // Admin boleh mengelola semua surat. User Operasional hanya boleh mengubah/menghapus surat miliknya sendiri.
+    function canManageArchive(item) {
+      if (!currentUser || !item) return false;
+      if (currentUser.role === 'admin') return true;
+      if (item.uploadedById) return item.uploadedById === currentUser.id;
+      // Data lama (belum punya uploadedById): cocokkan berdasarkan nama pengunggah
+      return (item.uploadedBy || '') === currentUser.namaLengkap;
+    }
+
     // ==================== OPERASI CRUD ARSIP SURAT (DENGAN GOOGLE DRIVE) ====================
     function openArchiveModal(editItem = null) {
       document.getElementById('form-archive').reset();
@@ -2108,6 +2582,23 @@
         return;
       }
 
+      // Validasi hak kelola & pertahankan pemilik asli surat saat diubah
+      const existing = id ? archivesData.find((a) => a.id === id) : null;
+      if (id && (!existing || !canManageArchive(existing))) {
+        showToast('Anda hanya dapat mengubah atau menghapus surat milik Anda sendiri.', 'error');
+        return;
+      }
+      const owner = existing
+        ? {
+            uploadedBy: existing.uploadedBy || (currentUser ? currentUser.namaLengkap : 'Admin'),
+            uploadedById:
+              existing.uploadedById || (currentUser && currentUser.role !== 'admin' ? currentUser.id : '')
+          }
+        : {
+            uploadedBy: currentUser ? currentUser.namaLengkap : 'Admin',
+            uploadedById: currentUser ? currentUser.id : ''
+          };
+
       const payload = {
         nomorSurat,
         tanggalSurat,
@@ -2117,7 +2608,8 @@
         driveUrl,
         driveFileId,
         keterangan,
-        uploadedBy: currentUser ? currentUser.namaLengkap : 'Admin',
+        uploadedBy: owner.uploadedBy,
+        uploadedById: owner.uploadedById,
         createdAt: Date.now()
       };
 
@@ -2542,9 +3034,15 @@
 
         if (action === 'preview-drive') {
           openDrivePreviewModal(item);
-        } else if (action === 'edit-archive') {
-          openArchiveModal(item);
-        } else if (action === 'delete-archive') {
+        } else if (action === 'edit-archive' || action === 'delete-archive') {
+          if (!canManageArchive(item)) {
+            showToast('Anda hanya dapat mengubah atau menghapus surat milik Anda sendiri.', 'error');
+            return;
+          }
+          if (action === 'edit-archive') {
+            openArchiveModal(item);
+            return;
+          }
           openConfirmModal(
             'Hapus Arsip Surat',
             `Apakah Anda yakin ingin menghapus arsip "${item.namaSurat}" (${item.nomorSurat})?`,
@@ -2617,6 +3115,14 @@
           );
         }
       });
+
+      // Backup & Restore (Admin)
+      document.getElementById('btn-backup-download').addEventListener('click', handleBackupDownload);
+      document.getElementById('btn-restore-pick').addEventListener('click', () => {
+        document.getElementById('restore-file-input').click();
+      });
+      document.getElementById('restore-file-input').addEventListener('change', handleRestoreFileSelected);
+      document.getElementById('btn-restore-run').addEventListener('click', handleRestoreRun);
 
       // Tombol Modal Konfirmasi
       document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
