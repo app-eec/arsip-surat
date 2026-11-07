@@ -80,11 +80,11 @@ header form#global-search-form input{min-width:0;}
 .responsive-table .cell-actions button{width:2.5rem !important;height:2.5rem !important;border-radius:0.75rem !important;}
 .responsive-table td.empty-cell{display:block;text-align:center;border-bottom:0;}
 .responsive-table td.empty-cell::before{display:none;}
-#modal-archive,#modal-category,#modal-user{align-items:flex-end !important;padding:0 !important;}
-#modal-archive>div,#modal-category>div,#modal-user>div{max-width:none !important;max-height:92vh;max-height:92dvh;overflow-y:auto;border-radius:1.25rem 1.25rem 0 0 !important;padding-bottom:env(safe-area-inset-bottom,0px);-webkit-overflow-scrolling:touch;}
-#modal-archive>div>div:first-child,#modal-category>div>div:first-child,#modal-user>div>div:first-child{position:sticky;top:0;z-index:2;}
-#modal-archive form>div:last-child,#modal-category form>div:last-child,#modal-user form>div:last-child{position:sticky;bottom:0;background:#fff;padding-bottom:0.5rem;}
-#modal-archive form>div:last-child button,#modal-category form>div:last-child button,#modal-user form>div:last-child button{flex:1;padding-top:0.7rem;padding-bottom:0.7rem;}
+#modal-archive,#modal-category{align-items:flex-end !important;padding:0 !important;}
+#modal-archive>div,#modal-category>div>div{max-width:none !important;max-height:92vh;max-height:92dvh;overflow-y:auto;border-radius:1.25rem 1.25rem 0 0 !important;padding-bottom:env(safe-area-inset-bottom,0px);-webkit-overflow-scrolling:touch;}
+#modal-archive>div>div:first-child,#modal-category>div>div:first-child>div>div:first-child{position:sticky;top:0;z-index:2;}
+#modal-archive form>div:last-child,#modal-category form>div:last-child form>div:last-child{position:sticky;bottom:0;background:#fff;padding-bottom:0.5rem;}
+#modal-archive form>div:last-child button,#modal-category form>div:last-child button form>div:last-child button{flex:1;padding-top:0.7rem;padding-bottom:0.7rem;}
 #modal-drive-preview{padding:0 !important;}
 #modal-drive-preview>div{max-width:none !important;width:100% !important;height:100vh !important;height:100dvh !important;border-radius:0 !important;}
 }
@@ -145,15 +145,15 @@ Aplikasi Pengelolaan Arsip Surat
 </h1>
 <div id="login-error-box" class="hidden mb-4 px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
 <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm"></i>
-<span id="login-error-text">Username atau password tidak sesuai.</span>
+<span id="login-error-text">Email atau password tidak sesuai.</span>
 </div>
 <form id="login-form" class="space-y-4" autocomplete="off">
 <div>
 <input
-type="text"
+type="email"
 id="login-identity"
 required
-placeholder="Username / Email Admin"
+placeholder="Email Admin"
 class="w-full px-5 py-3 rounded-full border border-slate-300 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#17A2B8] focus:ring-2 focus:ring-[#17A2B8]/20 transition"
 />
 </div>
@@ -187,22 +187,14 @@ class="w-full py-3 rounded-full bg-[#25B5CD] hover:bg-[#17A2B8] active:scale-[0.
 <span><i class="fa-solid fa-key mr-1 text-apsir"></i> Akun Uji Coba (Klik untuk Isi Otomatis):</span>
 <span class="text-[10px] bg-cyan-200/70 px-1.5 py-0.5 rounded font-extrabold">PREVIEW</span>
 </div>
-<div class="grid grid-cols-2 gap-2 mt-2">
+<div class="mt-2">
 <button
 type="button"
 id="btn-fill-admin"
-class="px-2.5 py-2 rounded-lg bg-white hover:bg-cyan-100 border border-cyan-300 text-left transition flex flex-col"
+class="w-full px-2.5 py-2 rounded-lg bg-white hover:bg-cyan-100 border border-cyan-300 text-left transition flex flex-col"
 >
-<span class="font-extrabold text-apsir-dark"><i class="fa-solid fa-user-shield mr-1"></i>Admin (Full Akses)</span>
+<span class="font-extrabold text-apsir-dark"><i class="fa-solid fa-user-shield mr-1"></i>Admin</span>
 <span class="text-[11px] text-slate-500">admin@apsir.id / admin123</span>
-</button>
-<button
-type="button"
-id="btn-fill-user"
-class="px-2.5 py-2 rounded-lg bg-white hover:bg-cyan-100 border border-cyan-300 text-left transition flex flex-col"
->
-<span class="font-extrabold text-emerald-700"><i class="fa-solid fa-user-check mr-1"></i>User (Operasional)</span>
-<span class="text-[11px] text-slate-500">staf01 / user123</span>
 </button>
 </div>
 </div>
@@ -243,7 +235,7 @@ class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rou
 <button
 type="button"
 data-nav="categories"
-class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
 >
 <i class="fa-solid fa-layer-group w-5 text-center text-base"></i>
 <span class="sidebar-text">Kategori Surat</span>
@@ -254,16 +246,8 @@ PENGATURAN
 </div>
 <button
 type="button"
-data-nav="users"
-class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
->
-<i class="fa-solid fa-user-gear w-5 text-center text-base"></i>
-<span class="sidebar-text">Manajemen User</span>
-</button>
-<button
-type="button"
 data-nav="backup"
-class="nav-trigger admin-only-menu sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
+class="nav-trigger sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition hover:bg-white/15"
 >
 <i class="fa-solid fa-database w-5 text-center text-base"></i>
 <span class="sidebar-text">Backup &amp; Restore</span>
@@ -349,10 +333,10 @@ Sinkronisasi Aktif
 <div class="bg-[#D1ECF1] border border-[#BEE5EB] text-[#0C5460] px-4 py-3.5 rounded-md text-xs sm:text-sm flex items-center gap-2.5 shadow-sm">
 <i class="fa-solid fa-user-check text-base shrink-0"></i>
 <p>
-Selamat datang kembali <strong id="banner-user-name" class="font-extrabold">Admin</strong> di Aplikasi Pengelolaan Arsip Surat. Anda login sebagai <strong id="banner-user-role" class="font-extrabold">Admin</strong>.
+Selamat datang kembali <strong id="banner-user-name" class="font-extrabold">Admin</strong> di Aplikasi Pengelolaan Arsip Surat. Anda login sebagai <strong id="banner-user-role" class="font-extrabold">Administrator</strong>.
 </p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 <div
 data-goto="archives"
 class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 border-l-4 border-l-[#17A2B8] p-5 flex items-center justify-between hover:shadow-md transition"
@@ -375,18 +359,6 @@ class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 b
 </div>
 <div class="text-slate-300 text-3xl">
 <i class="fa-solid fa-layer-group"></i>
-</div>
-</div>
-<div
-data-goto="users"
-class="cursor-pointer bg-white rounded-lg shadow-sm border border-slate-200/80 border-l-4 border-l-[#F6C23E] p-5 flex items-center justify-between hover:shadow-md transition"
->
-<div>
-<div class="text-xs font-bold text-[#F6C23E] mb-1">Pengguna Aplikasi</div>
-<div id="stat-total-users" class="text-2xl font-extrabold text-slate-700">0</div>
-</div>
-<div class="text-slate-300 text-3xl">
-<i class="fa-solid fa-user"></i>
 </div>
 </div>
 </div>
@@ -514,54 +486,6 @@ class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs sm:text-
 </div>
 </div>
 </section>
-<section id="view-users" class="hidden space-y-5 animate-fade-in">
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-<div>
-<h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
-<i class="fa-solid fa-users-gear text-[#F6C23E]"></i>
-<span>Manajemen User</span>
-</h2>
-<p class="text-xs text-slate-500 mt-0.5">Kelola akun staf operasional yang berwenang mengakses dan mengelola arsip surat.</p>
-</div>
-<button
-type="button"
-id="btn-add-user"
-class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-2 shrink-0"
->
-<i class="fa-solid fa-user-plus"></i>
-<span>Tambah Pengguna</span>
-</button>
-</div>
-<div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200/80 flex items-center gap-3">
-<div class="relative flex-1">
-<i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-<input
-type="text"
-id="user-search-input"
-placeholder="Cari nama lengkap, username, atau jabatan..."
-class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-[#17A2B8]"
-/>
-</div>
-</div>
-<div class="bg-white rounded-lg shadow-sm border border-slate-200/80 overflow-hidden">
-<div class="overflow-x-auto">
-<table class="responsive-table w-full text-left border-collapse">
-<thead>
-<tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-<th class="py-3.5 px-4 w-14">No</th>
-<th class="py-3.5 px-4">Nama Lengkap</th>
-<th class="py-3.5 px-4">Username Login</th>
-<th class="py-3.5 px-4">Jabatan / Unit</th>
-<th class="py-3.5 px-4">Hak Akses</th>
-<th class="py-3.5 px-4 text-center w-36">Aksi</th>
-</tr>
-</thead>
-<tbody id="users-table-body" class="divide-y divide-slate-200 text-xs sm:text-sm">
-</tbody>
-</table>
-</div>
-</div>
-</section>
 <section id="view-password" class="hidden space-y-5 animate-fade-in">
 <div>
 <h2 class="text-xl sm:text-2xl font-bold text-slate-700 flex items-center gap-2.5">
@@ -636,9 +560,9 @@ class="bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold text-xs sm:text-sm 
 </div>
 <div class="p-5 space-y-4 flex-1">
 <p class="text-xs sm:text-sm text-slate-600">
-Unduh seluruh data (arsip surat, kategori surat, dan pengguna) sebagai satu file <strong>.json</strong>.
+Unduh seluruh data (arsip surat dan kategori surat) sebagai satu file <strong>.json</strong>.
 </p>
-<div class="grid grid-cols-3 gap-2.5">
+<div class="grid grid-cols-2 gap-2.5">
 <div class="rounded-lg bg-cyan-50 border border-cyan-100 p-3 text-center">
 <div id="bk-count-archives" class="text-xl font-extrabold text-[#0F6674]">0</div>
 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">Arsip</div>
@@ -647,14 +571,10 @@ Unduh seluruh data (arsip surat, kategori surat, dan pengguna) sebagai satu file
 <div id="bk-count-categories" class="text-xl font-extrabold text-emerald-700">0</div>
 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">Kategori</div>
 </div>
-<div class="rounded-lg bg-amber-50 border border-amber-100 p-3 text-center">
-<div id="bk-count-users" class="text-xl font-extrabold text-amber-600">0</div>
-<div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">User</div>
-</div>
 </div>
 <div class="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] sm:text-xs px-3.5 py-2.5 flex gap-2">
 <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
-<span>File backup memuat data akun pengguna termasuk password. Simpan di tempat yang aman dan jangan dibagikan.</span>
+<span>File backup hanya memuat data arsip dan kategori. Dokumen suratnya tetap tersimpan di Google Drive dan tidak ikut terunduh.</span>
 </div>
 </div>
 <div class="px-5 pb-5">
@@ -692,7 +612,7 @@ class="w-full border-2 border-dashed border-slate-300 hover:border-[#17A2B8] hov
 <span>File backup valid</span>
 </div>
 <div id="restore-summary-meta" class="text-[11px] text-slate-500"></div>
-<div id="restore-summary-counts" class="grid grid-cols-3 gap-2 text-center"></div>
+<div id="restore-summary-counts" class="grid grid-cols-2 gap-2 text-center"></div>
 <div id="restore-summary-warning" class="hidden text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5"></div>
 </div>
 <div id="restore-mode-box" class="hidden space-y-2">
@@ -736,15 +656,11 @@ class="w-full bg-[#1CC88A] hover:bg-emerald-600 disabled:bg-slate-200 disabled:t
 <i class="fa-solid fa-folder text-base"></i>
 <span class="text-[10px] font-bold mt-0.5">Arsip</span>
 </button>
-<button type="button" data-nav="categories" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+<button type="button" data-nav="categories" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
 <i class="fa-solid fa-layer-group text-base"></i>
 <span class="text-[10px] font-bold mt-0.5">Kategori</span>
 </button>
-<button type="button" data-nav="users" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
-<i class="fa-solid fa-user-gear text-base"></i>
-<span class="text-[10px] font-bold mt-0.5">User</span>
-</button>
-<button type="button" data-nav="backup" class="nav-trigger admin-only-menu flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
+<button type="button" data-nav="backup" class="nav-trigger flex flex-col items-center justify-center py-1 px-2 rounded-lg text-slate-500">
 <i class="fa-solid fa-database text-base"></i>
 <span class="text-[10px] font-bold mt-0.5">Backup</span>
 </button>
@@ -789,19 +705,28 @@ class="w-full bg-[#1CC88A] hover:bg-emerald-600 disabled:bg-slate-200 disabled:t
 </select>
 </div>
 <div>
-<label class="block text-xs font-bold text-slate-600 mb-1">
-<i class="fa-brands fa-google-drive text-apsir mr-1"></i>Link Berbagi / File ID Google Drive *
+<label id="archive-file-label" class="block text-xs font-bold text-slate-600 mb-1">
+<i class="fa-brands fa-google-drive text-apsir mr-1"></i>File Surat (PDF / Word / Gambar) *
 </label>
 <input
-type="text"
-id="archive-drive-url"
-required
-placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing"
-class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]"
+type="file"
+id="archive-file"
+accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+class="w-full text-xs text-slate-600 px-2 py-1.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-[#17A2B8] file:mr-3 file:px-3 file:py-1.5 file:rounded-md file:border-0 file:bg-cyan-50 file:text-[#17A2B8] file:font-bold file:text-xs file:cursor-pointer"
 />
+<div id="archive-current-file" class="hidden mt-1.5 text-[11px] text-slate-500 flex items-center gap-1.5">
+<i class="fa-solid fa-paperclip text-slate-400"></i>
+<span class="truncate"></span>
+</div>
 <p class="text-[11px] text-slate-400 mt-1">
-Unggah file PDF/Word surat ke Google Drive Anda, atur akses ke <strong>"Siapa saja yang memiliki link"</strong>, lalu tempel tautannya di sini.
+Maksimal 25 MB. File otomatis tersimpan di folder <strong>APSIR - Arsip Surat</strong> pada Google Drive Admin.
 </p>
+<div id="archive-upload-progress" class="hidden mt-2">
+<div class="h-2 rounded-full bg-slate-100 overflow-hidden">
+<div id="archive-upload-bar" class="h-full bg-[#17A2B8] transition-all" style="width:0%"></div>
+</div>
+<p id="archive-upload-text" class="text-[11px] text-slate-500 mt-1">Mengunggah ke Google Drive... 0%</p>
+</div>
 </div>
 <div>
 <label class="block text-xs font-bold text-slate-600 mb-1">Keterangan / Ringkasan Isi</label>
@@ -809,7 +734,7 @@ Unggah file PDF/Word surat ke Google Drive Anda, atur akses ke <strong>"Siapa sa
 </div>
 <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
 <button type="button" data-close-modal="modal-archive" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold">Batal</button>
-<button type="submit" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold shadow-sm">Simpan Arsip</button>
+<button type="submit" id="btn-save-archive" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold shadow-sm">Simpan Arsip</button>
 </div>
 </form>
 </div>
@@ -848,9 +773,9 @@ class="w-full flex-1 border-0"
 allow="autoplay"
 ></iframe>
 <div class="px-4 py-2 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-<span><i class="fa-solid fa-circle-info text-apsir mr-1"></i>Jika pratinjau meminta izin akses, pastikan file di Google Drive disetel ke <strong>"Siapa saja yang memiliki link"</strong>.</span>
+<span><i class="fa-solid fa-circle-info text-apsir mr-1"></i>File bersifat privat di Google Drive Anda dan hanya dapat dibuka dari aplikasi ini atau akun Google Admin.</span>
 <a id="preview-download-drive" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-[#17A2B8] hover:underline">
-<i class="fa-solid fa-download mr-1"></i>Unduh File Langsung
+<i class="fa-solid fa-download mr-1"></i>Unduh File
 </a>
 </div>
 </div>
@@ -884,42 +809,6 @@ allow="autoplay"
 </form>
 </div>
 </div>
-<div id="modal-user" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-<div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
-<div class="px-5 py-4 bg-[#17A2B8] text-white flex items-center justify-between">
-<h3 id="modal-user-title" class="font-bold text-base flex items-center gap-2">
-<i class="fa-solid fa-user-plus"></i>
-<span>Tambah Pengguna Aplikasi</span>
-</h3>
-<button type="button" data-close-modal="modal-user" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
-<i class="fa-solid fa-xmark"></i>
-</button>
-</div>
-<form id="form-user" class="p-5 space-y-3.5 text-xs sm:text-sm">
-<input type="hidden" id="user-id" />
-<div>
-<label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Pengguna *</label>
-<input type="text" id="user-nama" required placeholder="Contoh: Rina Kartika, S.AP" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 mb-1">Username Login *</label>
-<input type="text" id="user-username" required placeholder="Contoh: staf01" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 mb-1">Password Login *</label>
-<input type="text" id="user-password" required minlength="6" placeholder="Masukkan password pengguna (minimal 6 karakter)" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
-</div>
-<div>
-<label class="block text-xs font-bold text-slate-600 mb-1">Jabatan / Unit Kerja *</label>
-<input type="text" id="user-jabatan" required placeholder="Contoh: Staf Kearsipan Umum" class="w-full px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-[#17A2B8]" />
-</div>
-<div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
-<button type="button" data-close-modal="modal-user" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold">Batal</button>
-<button type="submit" class="px-5 py-2 rounded-lg bg-[#17A2B8] hover:bg-apsir-dark text-white font-bold shadow-sm">Simpan Pengguna</button>
-</div>
-</form>
-</div>
-</div>
 <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
 <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-fade-in">
 <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
@@ -949,10 +838,16 @@ const firebaseConfig = {
   appId: "APP_ID"
 };
 
+// GOOGLE DRIVE: isi dengan OAuth Client ID (tipe "Web application") dari Google Cloud Console project Firebase Anda
+const GOOGLE_CLIENT_ID = 'CLIENT_ID_ANDA.apps.googleusercontent.com';
+const DRIVE_FOLDER_NAME = 'APSIR - Arsip Surat'; // dibuat otomatis di Google Drive Admin
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'; // hanya file yang dibuat aplikasi ini
+const MAX_UPLOAD_MB = 25;
+const ALLOWED_EXT = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+
 const SDK = 'https://www.gstatic.com/firebasejs/11.6.1/';
-const VIEWS = ['dashboard', 'archives', 'categories', 'users', 'backup', 'password'];
-const ADMIN_VIEWS = ['categories', 'users', 'backup'];
-const COLS = ['categories', 'archives', 'users'];
+const VIEWS = ['dashboard', 'archives', 'categories', 'backup', 'password'];
+const COLS = ['categories', 'archives'];
 const BACKUP_APP_ID = 'APSIR-BACKUP';
 
 // ==================== HELPER UMUM ====================
@@ -1001,20 +896,20 @@ function extractDriveFileId(input) {
 }
 
 // ==================== STATE ====================
-const D = { categories: [], archives: [], users: [] };
-let currentUser = null; // { id, namaLengkap, username, role: 'admin'|'user', jabatan }
+const D = { categories: [], archives: [] };
+let currentUser = null; // { id, namaLengkap, username, role: 'admin', jabatan }
 let currentView = 'dashboard';
 let previewAdminPassword = 'admin123';
 let archiveSearch = '';
 let archiveCategory = 'ALL';
 let categorySearch = '';
-let userSearch = '';
+let uploading = false;
 
 // ==================== KONEKSI FIREBASE (HANYA SAAT IS_PREVIEW === false) ====================
-// Modul Firebase dimuat dinamis & paralel: mode preview tidak mengunduh Firebase sama sekali,
-// modul Auth baru dimuat saat dibutuhkan (login Admin), dan data arsip/kategori sudah
-// disinkronkan sejak halaman login terbuka sehingga dashboard langsung terisi setelah login.
-let FS, db, appRef, authKit, unsubUsers;
+// Modul Firebase dimuat dinamis & paralel: mode preview tidak mengunduh Firebase sama sekali.
+// Karena aturan Firestore hanya mengizinkan Admin, sinkronisasi data dimulai SETELAH login.
+let FS, db, appRef, authKit;
+let unsubs = [];
 
 async function connect() {
   const [{ initializeApp }, fs] = await Promise.all([
@@ -1032,8 +927,6 @@ async function connect() {
   } catch (_) {
     db = fs.getFirestore(appRef);
   }
-  listen('categories', 'kategori');
-  listen('archives', 'arsip surat');
   (window.requestIdleCallback || setTimeout)(loadAuth);
 }
 
@@ -1051,8 +944,25 @@ function listen(col, label) {
   );
 }
 
-// ==================== AUTENTIKASI HYBRID (ADMIN VIA AUTH & USER VIA FIRESTORE) ====================
-const toSession = (u) => ({ id: u.id, namaLengkap: u.namaLengkap, username: u.username, role: 'user', jabatan: u.jabatan });
+function startListeners() {
+  stopListeners();
+  unsubs = [listen('categories', 'kategori'), listen('archives', 'arsip surat')];
+}
+
+function stopListeners() {
+  unsubs.forEach((u) => u());
+  unsubs = [];
+}
+
+// ==================== AUTENTIKASI ADMIN (FIREBASE AUTH) ====================
+const AUTH_ERRORS = {
+  'auth/invalid-credential': 'Email atau password tidak sesuai.',
+  'auth/wrong-password': 'Email atau password tidak sesuai.',
+  'auth/user-not-found': 'Email atau password tidak sesuai.',
+  'auth/invalid-email': 'Format email tidak valid.',
+  'auth/too-many-requests': 'Terlalu banyak percobaan login. Coba lagi beberapa menit lagi.',
+  'auth/network-request-failed': 'Koneksi internet bermasalah. Coba lagi.'
+};
 
 async function authenticate(identity, password) {
   if (IS_PREVIEW) {
@@ -1060,16 +970,13 @@ async function authenticate(identity, password) {
     if ((key === 'admin' || key === 'admin@apsir.id') && password === previewAdminPassword) {
       return { id: 'admin-preview', namaLengkap: 'Admin', username: 'admin@apsir.id', role: 'admin', jabatan: 'Administrator Sistem' };
     }
-    const u = D.users.find((x) => x.username.toLowerCase() === key && x.password === password);
-    if (u) return toSession(u);
-    throw new Error('Username/Email atau Password tidak sesuai. Gunakan tombol Akun Uji Coba di bawah.');
+    throw new Error('Email atau Password tidak sesuai. Gunakan tombol Akun Uji Coba di bawah.');
   }
 
   await ready;
   if (!db) throw new Error('Koneksi Firebase belum terinisialisasi.');
 
-  // Input mengandung '@' -> Admin via Firebase Authentication
-  if (identity.includes('@')) {
+  try {
     const { m, auth } = await loadAuth();
     const cred = await m.signInWithEmailAndPassword(auth, identity, password);
     return {
@@ -1079,22 +986,9 @@ async function authenticate(identity, password) {
       role: 'admin',
       jabatan: 'Administrator Utama'
     };
+  } catch (err) {
+    throw new Error(AUTH_ERRORS[err.code] || err.message);
   }
-
-  // Selain itu -> User Operasional, validasi ke koleksi `users`
-  const snap = await FS.getDocs(
-    FS.query(FS.collection(db, 'users'), FS.where('username', '==', identity), FS.where('password', '==', password), FS.limit(1))
-  );
-  if (snap.empty) throw new Error('Username atau Password User tidak ditemukan di database.');
-  const d = snap.docs[0];
-  const data = d.data();
-  return {
-    id: d.id,
-    namaLengkap: data.namaLengkap || data.username,
-    username: data.username,
-    role: 'user',
-    jabatan: data.jabatan || 'Staf Operasional'
-  };
 }
 
 async function handleLoginSubmit(e) {
@@ -1105,7 +999,10 @@ async function handleLoginSubmit(e) {
   btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>MEMVERIFIKASI...</span>`;
   try {
     const user = await authenticate($('login-identity').value.trim(), $('login-password').value);
-    if (!IS_PREVIEW) unsubUsers = listen('users', 'pengguna');
+    if (!IS_PREVIEW) {
+      startListeners();
+      loadGis().catch(() => {}); // siapkan Google Identity Services sebelum upload pertama
+    }
     enterApplicationSession(user);
   } catch (err) {
     $('login-error-text').textContent = err.message || 'Gagal masuk. Periksa kembali kredensial Anda.';
@@ -1118,17 +1015,13 @@ async function handleLoginSubmit(e) {
 
 function enterApplicationSession(user) {
   currentUser = user;
-  const isAdmin = user.role === 'admin';
-  const roleLabel = isAdmin ? 'Admin' : 'User';
   toggle('login-screen', true);
   toggle('app-shell', false);
 
   $('topbar-user-name').textContent = user.namaLengkap;
-  $('topbar-user-role').textContent = isAdmin ? 'Administrator' : user.jabatan || 'User Operasional';
+  $('topbar-user-role').textContent = 'Administrator';
   $('banner-user-name').textContent = user.namaLengkap;
-  $('banner-user-role').textContent = roleLabel;
-  $('password-account-badge').textContent = `${user.namaLengkap} (${roleLabel})`;
-  document.querySelectorAll('.admin-only-menu').forEach((el) => el.classList.toggle('hidden', !isAdmin));
+  $('password-account-badge').textContent = `${user.namaLengkap} (Admin)`;
 
   $('login-form').reset();
   switchMenu('dashboard');
@@ -1136,9 +1029,14 @@ function enterApplicationSession(user) {
 }
 
 async function handleLogout() {
-  unsubUsers?.();
-  unsubUsers = null;
-  if (!IS_PREVIEW) D.users = [];
+  stopListeners();
+  if (!IS_PREVIEW) {
+    D.categories = [];
+    D.archives = [];
+  }
+  driveToken = null;
+  driveFolderId = null;
+  closeDrivePreview();
   currentUser = null;
   toggle('app-shell', true);
   toggle('login-screen', false);
@@ -1153,10 +1051,6 @@ async function handleLogout() {
 
 // ==================== NAVIGASI & RENDER ====================
 function switchMenu(target) {
-  if (currentUser && currentUser.role !== 'admin' && ADMIN_VIEWS.includes(target)) {
-    showToast('Akses dibatasi. Menu tersebut khusus untuk Administrator.', 'error');
-    return;
-  }
   currentView = target;
   VIEWS.forEach((v) => toggle('view-' + v, v !== target));
 
@@ -1175,10 +1069,9 @@ function switchMenu(target) {
   refreshAllViews();
 }
 
-// Pengurutan: arsip = tanggal surat terbaru, kategori & user = A-Z (ascending)
+// Pengurutan: arsip = tanggal surat terbaru, kategori = A-Z (ascending)
 function sortCollections() {
   D.categories.sort((a, b) => collator.compare(a.namaKategori || '', b.namaKategori || ''));
-  D.users.sort((a, b) => collator.compare(a.namaLengkap || '', b.namaLengkap || ''));
   D.archives.sort((a, b) => {
     const x = a.tanggalSurat || '';
     const y = b.tanggalSurat || '';
@@ -1194,7 +1087,6 @@ const RENDER = {
     renderArchivesTable();
   },
   categories: () => renderCategoriesTable(),
-  users: () => renderUsersTable(),
   backup: () => COLS.forEach((k) => ($('bk-count-' + k).textContent = D[k].length))
 };
 
@@ -1345,27 +1237,19 @@ const rowActions = (kind, id, noun) =>
 const actionCell = (inner, cls = '') => `<td data-label="Aksi" class="cell-actions py-3.5 px-4 text-center ${cls}">${inner}</td>`;
 const matches = (kw, obj, keys) => !kw || keys.some((k) => (obj[k] || '').toLowerCase().includes(kw));
 
-// User Operasional hanya boleh mengubah/menghapus surat miliknya; Admin boleh semuanya
-function canManageArchive(a) {
-  if (!currentUser || !a) return false;
-  if (currentUser.role === 'admin') return true;
-  // Data lama (belum punya uploadedById): cocokkan berdasarkan nama pengunggah
-  return a.uploadedById ? a.uploadedById === currentUser.id : (a.uploadedBy || '') === currentUser.namaLengkap;
-}
-
 function renderArchivesTable() {
   const kw = archiveSearch.toLowerCase().trim();
   const rows = D.archives.filter(
     (a) =>
       (archiveCategory === 'ALL' || a.kategoriId === archiveCategory) &&
-      matches(kw, a, ['nomorSurat', 'namaSurat', 'kategoriNama', 'keterangan'])
+      matches(kw, a, ['nomorSurat', 'namaSurat', 'kategoriNama', 'keterangan', 'fileName'])
   );
   $('archives-table-body').innerHTML = rows.length
     ? rows
         .map(
           (a, i) => `<tr class="hover:bg-slate-50/80 transition">${noCell(i + 1)}${cell(
             'Nomor Surat',
-            `<span class="font-extrabold text-slate-700 block">${escapeHtml(a.nomorSurat)}</span><span class="text-[11px] text-slate-400">Oleh: ${escapeHtml(a.uploadedBy || 'Admin')}</span>`
+            `<span class="font-extrabold text-slate-700 block">${escapeHtml(a.nomorSurat)}</span>${a.fileName ? `<span class="text-[11px] text-slate-400 block truncate max-w-[14rem]"><i class="fa-solid fa-paperclip mr-1"></i>${escapeHtml(a.fileName)}</span>` : ''}`
           )}${cell(
             'Perihal',
             `<div class="font-bold text-slate-700">${escapeHtml(a.namaSurat)}</div>${a.keterangan ? `<div class="text-[11px] text-slate-400 line-clamp-1">${escapeHtml(a.keterangan)}</div>` : ''}`,
@@ -1377,18 +1261,13 @@ function renderArchivesTable() {
             'Dokumen',
             `<button type="button" data-action="preview-drive" data-id="${escapeHtml(a.id)}" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs inline-flex items-center gap-1.5 transition"><i class="fa-brands fa-google-drive"></i><span>Lihat Dokumen</span></button>`,
             'whitespace-nowrap'
-          )}${actionCell(
-            canManageArchive(a)
-              ? rowActions('archive', a.id, 'Arsip')
-              : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 text-slate-400 border border-slate-200 text-[11px] font-bold" title="Surat ini milik pengguna lain. Hanya pemilik atau Admin yang dapat mengubah atau menghapus."><i class="fa-solid fa-lock text-[10px]"></i><span>Surat pengguna lain</span></span>`,
-            'whitespace-nowrap'
-          )}</tr>`
+          )}${actionCell(rowActions('archive', a.id, 'Arsip'), 'whitespace-nowrap')}</tr>`
         )
         .join('')
     : emptyRow(
         7,
         12,
-        `<i class="fa-regular fa-folder-open text-3xl mb-2 block text-slate-300"></i><p class="font-bold text-slate-600 text-sm">Belum ada data arsip surat yang ditemukan</p><p class="text-xs mt-0.5">Klik tombol "+ Arsipkan Surat Baru" untuk menyimpan arsip surat ke sistem.</p>`
+        `<i class="fa-regular fa-folder-open text-3xl mb-2 block text-slate-300"></i><p class="font-bold text-slate-600 text-sm">Belum ada data arsip surat yang ditemukan</p><p class="text-xs mt-0.5">Klik tombol "+ Arsipkan Surat Baru" untuk mengunggah arsip surat ke sistem.</p>`
       );
 }
 
@@ -1413,29 +1292,195 @@ function renderCategoriesTable() {
     : emptyRow(5, 10, '<p class="font-bold text-slate-600 text-sm">Belum ada data kategori surat</p>');
 }
 
-function renderUsersTable() {
-  const kw = userSearch.toLowerCase().trim();
-  const rows = D.users.filter((u) => matches(kw, u, ['namaLengkap', 'username', 'jabatan']));
-  $('users-table-body').innerHTML = rows.length
-    ? rows
-        .map(
-          (u, i) => `<tr class="hover:bg-slate-50/80 transition">${noCell(i + 1)}${cell(
-            'Nama',
-            escapeHtml(u.namaLengkap),
-            'cell-title font-extrabold text-slate-700'
-          )}${cell(
-            'Username',
-            `<code class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">${escapeHtml(u.username)}</code>`
-          )}${cell('Jabatan', escapeHtml(u.jabatan || '-'), 'text-slate-600')}${cell(
-            'Hak Akses',
-            `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">User Operasional</span>`
-          )}${actionCell(rowActions('user', u.id, 'Pengguna'))}</tr>`
-        )
-        .join('')
-    : emptyRow(6, 10, '<p class="font-bold text-slate-600 text-sm">Belum ada data pengguna operasional</p>');
+// ==================== GOOGLE DRIVE (UPLOAD LANGSUNG DARI APLIKASI) ====================
+// Admin memberi izin sekali lewat popup Google (scope drive.file = hanya file buatan aplikasi ini).
+// File tersimpan privat di folder DRIVE_FOLDER_NAME pada Google Drive milik Admin.
+let gisPromise = null;
+let driveToken = null;
+let driveTokenExp = 0;
+let driveFolderId = null;
+const previewFiles = new Map(); // mode preview: simulasi Drive, file disimpan di memori
+
+function loadGis() {
+  return (gisPromise ||= new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://accounts.google.com/gsi/client';
+    sc.async = true;
+    sc.onload = resolve;
+    sc.onerror = () => {
+      gisPromise = null;
+      reject(new Error('Gagal memuat Google Identity Services. Periksa koneksi internet.'));
+    };
+    document.head.appendChild(sc);
+  }));
 }
 
-// ==================== CRUD (ARSIP, KATEGORI, USER) ====================
+async function getDriveToken() {
+  if (driveToken && Date.now() < driveTokenExp - 60000) return driveToken;
+  if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.startsWith('CLIENT_ID_ANDA')) {
+    throw new Error('GOOGLE_CLIENT_ID belum diisi pada konfigurasi aplikasi.');
+  }
+  await loadGis();
+  return new Promise((resolve, reject) => {
+    window.google.accounts.oauth2
+      .initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: DRIVE_SCOPE,
+        login_hint: (currentUser && currentUser.username) || '',
+        callback: (r) => {
+          if (r.error) return reject(new Error(r.error_description || r.error));
+          driveToken = r.access_token;
+          driveTokenExp = Date.now() + Number(r.expires_in) * 1000;
+          resolve(driveToken);
+        },
+        error_callback: (e) =>
+          reject(
+            new Error(
+              e && e.type === 'popup_closed'
+                ? 'Izin Google Drive dibatalkan.'
+                : e && e.type === 'popup_failed_to_open'
+                  ? 'Popup izin Google diblokir browser. Izinkan popup lalu coba lagi.'
+                  : 'Gagal meminta izin Google Drive.'
+            )
+          )
+      })
+      .requestAccessToken();
+  });
+}
+
+async function driveRequest(url, init = {}) {
+  const token = await getDriveToken();
+  const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), Authorization: 'Bearer ' + token } });
+  if (res.status === 401) {
+    driveToken = null;
+    throw new Error('Sesi Google Drive berakhir. Silakan coba lagi.');
+  }
+  if (!res.ok) {
+    let msg = '';
+    try {
+      msg = (await res.json()).error.message;
+    } catch (_) {}
+    throw new Error(msg || `Google Drive menolak permintaan (${res.status}).`);
+  }
+  return res;
+}
+
+async function ensureDriveFolder() {
+  if (driveFolderId) return driveFolderId;
+  const q = encodeURIComponent(
+    `name='${DRIVE_FOLDER_NAME.replace(/'/g, "\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
+  );
+  const found = await (await driveRequest(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)&pageSize=1`)).json();
+  if (found.files && found.files.length) return (driveFolderId = found.files[0].id);
+  const made = await (
+    await driveRequest('https://www.googleapis.com/drive/v3/files?fields=id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: DRIVE_FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+    })
+  ).json();
+  return (driveFolderId = made.id);
+}
+
+// Unggah resumable dengan indikator progres. Mengembalikan { id, mimeType, size }
+async function uploadToDrive(file, name, onProgress) {
+  if (IS_PREVIEW) {
+    for (let p = 0; p <= 100; p += 20) {
+      onProgress(p);
+      await new Promise((r) => setTimeout(r, 120));
+    }
+    const id = '1DemoUpload' + Date.now();
+    previewFiles.set(id, file);
+    return { id, mimeType: file.type, size: file.size };
+  }
+
+  const mime = file.type || 'application/octet-stream';
+  const start = async () => {
+    const folderId = await ensureDriveFolder();
+    return driveRequest('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,mimeType,size', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Upload-Content-Type': mime,
+        'X-Upload-Content-Length': String(file.size)
+      },
+      body: JSON.stringify({ name, parents: [folderId] })
+    });
+  };
+  let init;
+  try {
+    init = await start();
+  } catch (_) {
+    driveFolderId = null; // folder mungkin terhapus: buat/cari ulang sekali
+    init = await start();
+  }
+  const location = init.headers.get('Location');
+  if (!location) throw new Error('Google Drive tidak mengembalikan alamat unggahan.');
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', location);
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
+    xhr.onload = () => {
+      if (xhr.status < 200 || xhr.status >= 300) return reject(new Error(`Unggahan ditolak Google Drive (${xhr.status}).`));
+      try {
+        resolve(JSON.parse(xhr.responseText));
+      } catch (_) {
+        reject(new Error('Respons Google Drive tidak valid.'));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Koneksi terputus saat mengunggah.'));
+    xhr.send(file);
+  });
+}
+
+async function fetchDriveBlob(fileId, mime) {
+  if (IS_PREVIEW) {
+    const f = previewFiles.get(fileId);
+    if (!f) throw new Error('File contoh tidak tersedia.');
+    return f;
+  }
+  const res = await driveRequest(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`);
+  return new Blob([await res.blob()], { type: mime || 'application/octet-stream' });
+}
+
+// File dipindahkan ke tempat sampah Google Drive (bisa dipulihkan dari Drive)
+async function trashDriveFile(fileId) {
+  if (IS_PREVIEW) {
+    previewFiles.delete(fileId);
+    return;
+  }
+  await driveRequest(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?fields=id`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ trashed: true })
+  });
+}
+
+function validateUpload(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!ALLOWED_EXT.includes(ext)) return 'Format file tidak didukung. Gunakan PDF, Word (DOC/DOCX), atau gambar (JPG/PNG).';
+  if (!file.size) return 'File kosong dan tidak dapat diunggah.';
+  if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return `Ukuran file melebihi batas ${MAX_UPLOAD_MB} MB.`;
+  return '';
+}
+
+const formatSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
+
+function setUploading(flag) {
+  uploading = flag;
+  $('btn-save-archive').disabled = flag;
+  $('archive-file').disabled = flag;
+  toggle('archive-upload-progress', !flag);
+  setUploadProgress(0);
+}
+
+function setUploadProgress(p) {
+  $('archive-upload-bar').style.width = p + '%';
+  $('archive-upload-text').textContent = p >= 100 ? 'Menyelesaikan penyimpanan...' : `Mengunggah ke Google Drive... ${p}%`;
+}
+
+// ==================== CRUD (ARSIP & KATEGORI) ====================
 const done = (text, prep) => showToast(IS_PREVIEW ? `${text}.` : `${text} ${prep} Firestore.`);
 
 const ENT = {
@@ -1443,22 +1488,21 @@ const ENT = {
     pre: 'arc-', modal: 'modal-archive', fail: 'Gagal menyimpan arsip surat: ',
     add: 'Arsip surat baru berhasil disimpan', addPrep: 'ke', upd: 'Arsip surat berhasil diperbarui', del: 'Arsip surat berhasil dihapus',
     open: (i) => openArchiveModal(i),
-    ask: (i) => ['Hapus Arsip Surat', `Apakah Anda yakin ingin menghapus arsip "${i.namaSurat}" (${i.nomorSurat})?`]
+    ask: (i) => [
+      'Hapus Arsip Surat',
+      `Apakah Anda yakin ingin menghapus arsip "${i.namaSurat}" (${i.nomorSurat})?` +
+        (i.driveUploaded ? ' File di Google Drive juga akan dipindahkan ke tempat sampah.' : '')
+    ]
   },
   categories: {
     pre: 'cat-', modal: 'modal-category', fail: 'Gagal menyimpan kategori: ',
     add: 'Kategori surat baru berhasil ditambahkan', addPrep: 'ke', upd: 'Kategori surat berhasil diperbarui', del: 'Kategori surat berhasil dihapus',
     open: (i) => openCategoryModal(i),
     ask: (i) => ['Hapus Kategori Surat', `Hapus kategori "${i.namaKategori}"?`]
-  },
-  users: {
-    pre: 'usr-', modal: 'modal-user', fail: 'Gagal menyimpan pengguna: ',
-    add: 'Pengguna baru berhasil ditambahkan', addPrep: 'ke', upd: 'Data pengguna berhasil diperbarui', del: 'Pengguna berhasil dihapus',
-    open: (i) => openUserModal(i),
-    ask: (i) => ['Hapus Pengguna Aplikasi', `Cabut akses dan hapus pengguna "${i.namaLengkap}" (@${i.username})?`]
   }
 };
 
+// Mengembalikan true bila berhasil disimpan
 async function saveEntity(col, id, payload) {
   const m = ENT[col];
   try {
@@ -1478,12 +1522,23 @@ async function saveEntity(col, id, payload) {
     }
     done(id ? m.upd : m.add, id ? 'di' : m.addPrep);
     toggle(m.modal, true);
+    return true;
   } catch (err) {
     showToast(m.fail + err.message, 'error');
+    return false;
   }
 }
 
 async function removeEntity(col, id) {
+  const item = D[col].find((x) => x.id === id);
+  let driveFailed = false;
+  if (col === 'archives' && item && item.driveUploaded) {
+    try {
+      await trashDriveFile(item.driveFileId);
+    } catch (_) {
+      driveFailed = true;
+    }
+  }
   if (IS_PREVIEW) {
     D[col] = D[col].filter((x) => x.id !== id);
     refreshAllViews();
@@ -1491,6 +1546,7 @@ async function removeEntity(col, id) {
     await FS.deleteDoc(FS.doc(db, col, id));
   }
   done(ENT[col].del, 'dari');
+  if (driveFailed) showToast('File di Google Drive tidak dapat dihapus otomatis. Hapus manual bila perlu.', 'info');
 }
 
 // Form modal generik: reset, judul, isi field, tampilkan
@@ -1517,10 +1573,16 @@ function openArchiveModal(a = null) {
     a
       ? {
           'archive-id': a.id, 'archive-nomor': a.nomorSurat, 'archive-tanggal': a.tanggalSurat, 'archive-nama': a.namaSurat,
-          'archive-kategori': a.kategoriId, 'archive-drive-url': a.driveUrl, 'archive-keterangan': a.keterangan
+          'archive-kategori': a.kategoriId, 'archive-keterangan': a.keterangan
         }
       : { 'archive-id': '', 'archive-tanggal': localDateISO() }
   );
+  $('archive-file').required = !a;
+  $('archive-file-label').innerHTML =
+    `<i class="fa-brands fa-google-drive text-apsir mr-1"></i>${a ? 'Ganti File Surat (opsional)' : 'File Surat (PDF / Word / Gambar) *'}`;
+  toggle('archive-current-file', !a);
+  if (a) $('archive-current-file').querySelector('span').textContent = 'File saat ini: ' + (a.fileName || 'Tautan Google Drive');
+  setUploading(false);
 }
 
 function openCategoryModal(c = null) {
@@ -1532,47 +1594,68 @@ function openCategoryModal(c = null) {
   );
 }
 
-function openUserModal(u = null) {
-  openFormModal(
-    'modal-user',
-    u ? 'fa-user-pen' : 'fa-user-plus',
-    u ? 'Ubah Data Pengguna' : 'Tambah Pengguna Aplikasi',
-    u
-      ? { 'user-id': u.id, 'user-nama': u.namaLengkap, 'user-username': u.username, 'user-password': u.password, 'user-jabatan': u.jabatan }
-      : { 'user-id': '' }
-  );
-}
-
-function handleSaveArchive(e) {
+async function handleSaveArchive(e) {
   e.preventDefault();
+  if (uploading) return;
   const id = $('archive-id').value;
   const val = (k) => $('archive-' + k).value.trim();
-  const fileId = extractDriveFileId(val('drive-url'));
-  if (!fileId) {
-    showToast('Link atau File ID Google Drive tidak valid. Pastikan format tautan benar.', 'error');
-    return;
-  }
-  const cat = D.categories.find((c) => c.id === val('kategori'));
   const existing = id ? D.archives.find((a) => a.id === id) : null;
-  if (id && (!existing || !canManageArchive(existing))) {
-    showToast('Anda hanya dapat mengubah atau menghapus surat milik Anda sendiri.', 'error');
+  if (id && !existing) {
+    showToast('Data arsip tidak ditemukan.', 'error');
     return;
   }
+  const file = $('archive-file').files[0] || null;
+  if (!id && !file) {
+    showToast('Pilih file surat yang akan diunggah.', 'error');
+    return;
+  }
+  if (file) {
+    const problem = validateUpload(file);
+    if (problem) {
+      showToast(problem, 'error');
+      return;
+    }
+  }
+
+  const cat = D.categories.find((c) => c.id === val('kategori'));
   const payload = {
     nomorSurat: val('nomor'),
     namaSurat: val('nama'),
     kategoriId: val('kategori'),
     kategoriNama: cat ? cat.namaKategori : 'Umum',
     tanggalSurat: val('tanggal'),
-    driveUrl: val('drive-url'),
-    driveFileId: fileId,
     keterangan: val('keterangan'),
-    // Pemilik surat tidak berubah saat diedit; surat baru dimiliki pengguna yang sedang login
-    uploadedBy: (existing && existing.uploadedBy) || currentUser.namaLengkap,
-    uploadedById: existing ? existing.uploadedById || (currentUser.role !== 'admin' ? currentUser.id : '') : currentUser.id,
     createdAt: Date.now()
   };
-  return saveEntity('archives', id, payload);
+
+  let uploaded = null;
+  if (file) {
+    setUploading(true);
+    try {
+      const safeNo = payload.nomorSurat.replace(/[\\/:*?"<>|]+/g, '-');
+      uploaded = await uploadToDrive(file, `${safeNo} - ${file.name}`, setUploadProgress);
+    } catch (err) {
+      showToast('Gagal mengunggah ke Google Drive: ' + err.message, 'error');
+      setUploading(false);
+      return;
+    }
+    Object.assign(payload, {
+      driveFileId: uploaded.id,
+      driveUrl: `https://drive.google.com/file/d/${uploaded.id}/view`,
+      fileName: file.name,
+      mimeType: uploaded.mimeType || file.type || '',
+      fileSize: Number(uploaded.size) || file.size,
+      driveUploaded: true
+    });
+  }
+
+  const ok = await saveEntity('archives', id, payload);
+  if (file) setUploading(false);
+  if (!ok && uploaded) {
+    trashDriveFile(uploaded.id).catch(() => {}); // jangan tinggalkan file yatim di Drive
+  } else if (ok && uploaded && existing && existing.driveUploaded) {
+    trashDriveFile(existing.driveFileId).catch(() => {}); // file lama diganti
+  }
 }
 
 function handleSaveCategory(e) {
@@ -1584,40 +1667,57 @@ function handleSaveCategory(e) {
   });
 }
 
-function handleSaveUser(e) {
-  e.preventDefault();
-  const id = $('user-id').value;
-  const username = $('user-username').value.trim();
-  if (D.users.some((u) => (u.username || '').toLowerCase() === username.toLowerCase() && u.id !== id)) {
-    showToast('Username tersebut sudah digunakan oleh pengguna lain.', 'error');
-    return;
+// ---------- Pratinjau dokumen Google Drive ----------
+let previewObjectUrl = null;
+let currentPreview = null;
+
+const isInlineType = (m) => /^(application\/pdf|image\/)/.test(m || '');
+const noteDoc = (msg) =>
+  `<!DOCTYPE html><html><body style="font-family:Segoe UI,Arial,sans-serif;color:#64748b;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:24px">${escapeHtml(msg)}</body></html>`;
+
+function closeDrivePreview() {
+  currentPreview = null;
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
   }
-  const password = $('user-password').value;
-  if (password.length < 6) {
-    showToast('Password minimal 6 karakter.', 'error');
-    return;
-  }
-  return saveEntity('users', id, {
-    namaLengkap: $('user-nama').value.trim(),
-    username,
-    password,
-    jabatan: $('user-jabatan').value.trim(),
-    role: 'user',
-    createdAt: Date.now()
-  });
+  const iframe = $('drive-preview-iframe');
+  iframe.removeAttribute('srcdoc');
+  iframe.src = 'about:blank';
+  toggle('modal-drive-preview', true);
 }
 
-// ---------- Pratinjau dokumen Google Drive ----------
-function openDrivePreviewModal(a) {
+async function openDrivePreviewModal(a) {
   const fileId = a.driveFileId || extractDriveFileId(a.driveUrl);
   const enc = encodeURIComponent(fileId);
+  currentPreview = a;
   $('preview-doc-title').textContent = a.namaSurat;
-  $('preview-doc-meta').textContent = `Nomor: ${a.nomorSurat} • Kategori: ${a.kategoriNama} • Tanggal: ${a.tanggalSurat}`;
+  $('preview-doc-meta').textContent =
+    `Nomor: ${a.nomorSurat} • Kategori: ${a.kategoriNama} • Tanggal: ${a.tanggalSurat}` +
+    (a.fileName ? ` • File: ${a.fileName}${a.fileSize ? ' (' + formatSize(a.fileSize) + ')' : ''}` : '');
   $('preview-open-drive').href = fileId ? `https://drive.google.com/file/d/${enc}/view` : a.driveUrl;
-  $('preview-download-drive').href = fileId ? `https://drive.google.com/uc?export=download&id=${enc}` : a.driveUrl;
+  $('preview-download-drive').href = a.driveUploaded ? '#' : fileId ? `https://drive.google.com/uc?export=download&id=${enc}` : a.driveUrl;
 
   const iframe = $('drive-preview-iframe');
-  if (IS_PREVIEW && fileId.startsWith('1DemoFile')) {
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+  toggle('modal-drive-preview', false);
+
+  if (a.driveUploaded && isInlineType(a.mimeType)) {
+    // File privat: diambil dengan izin Admin lalu ditampilkan lewat blob (PDF / gambar)
+    iframe.srcdoc = noteDoc('Memuat dokumen dari Google Drive...');
+    try {
+      const blob = await fetchDriveBlob(fileId, a.mimeType);
+      if (currentPreview !== a) return;
+      previewObjectUrl = URL.createObjectURL(blob);
+      iframe.removeAttribute('srcdoc');
+      iframe.src = previewObjectUrl;
+    } catch (err) {
+      if (currentPreview === a) iframe.srcdoc = noteDoc('Dokumen tidak dapat dimuat: ' + err.message + ' Anda dapat mencoba tombol "Buka di Google Drive".');
+    }
+  } else if (IS_PREVIEW && fileId.startsWith('1Demo')) {
     // Simulasi lembar dokumen resmi untuk data contoh di Mode Preview
     iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>
 body{font-family:'Segoe UI',Arial,sans-serif;background:#e2e8f0;margin:0;padding:24px;display:flex;justify-content:center}
@@ -1633,16 +1733,34 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#e2e8f0;margin:0;padding
 <span class="badge">PRATINJAU DOKUMEN ELEKTRONIK</span>
 <div class="meta"><strong>Nomor Surat:</strong> ${escapeHtml(a.nomorSurat)}<br/><strong>Tanggal Surat:</strong> ${escapeHtml(a.tanggalSurat)}<br/><strong>Kategori:</strong> ${escapeHtml(a.kategoriNama)}<br/><strong>Perihal:</strong> ${escapeHtml(a.namaSurat)}</div>
 <div class="content"><p>${escapeHtml(a.keterangan || 'Dokumen surat resmi telah terarsip secara digital.')}</p>
-<p>Saat Anda memasukkan tautan berbagi <strong>Google Drive</strong> asli, jendela ini otomatis menampilkan pratinjau asli PDF/Dokumen langsung dari server Google Drive (<code>/file/d/FILE_ID/preview</code>).</p></div>
+<p>Pada versi yang dipublikasikan, file PDF/gambar yang Anda unggah ditampilkan langsung di sini dari Google Drive Admin.</p></div>
 </div></body></html>`;
   } else {
     iframe.removeAttribute('srcdoc');
     iframe.src = `https://drive.google.com/file/d/${enc}/preview`;
   }
-  toggle('modal-drive-preview', false);
 }
 
-// ==================== UBAH PASSWORD (ADMIN & USER) ====================
+async function handlePreviewDownload(e) {
+  const a = currentPreview;
+  if (!a || !a.driveUploaded) return; // arsip lama (tautan manual) memakai href bawaan
+  e.preventDefault();
+  try {
+    const blob = await fetchDriveBlob(a.driveFileId, a.mimeType);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = a.fileName || 'surat';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch (err) {
+    showToast('Gagal mengunduh file: ' + err.message, 'error');
+  }
+}
+
+// ==================== UBAH PASSWORD ADMIN ====================
 async function handleChangePassword(e) {
   e.preventDefault();
   const oldPass = $('cp-old-password').value;
@@ -1654,24 +1772,21 @@ async function handleChangePassword(e) {
   const wrongPass = () => showToast('Password saat ini tidak sesuai.', 'error');
   try {
     let msg = 'Password akun Anda berhasil diperbarui.';
-    if (currentUser.role === 'admin') {
-      if (IS_PREVIEW) {
-        if (oldPass !== previewAdminPassword) return wrongPass();
-        previewAdminPassword = newPass;
-      } else {
-        const { m, auth } = await loadAuth();
-        if (!auth.currentUser) throw new Error('Sesi Admin tidak ditemukan.');
-        await m.updatePassword(auth.currentUser, newPass);
-        msg = 'Password Firebase Auth Admin berhasil diperbarui.';
-      }
+    if (IS_PREVIEW) {
+      if (oldPass !== previewAdminPassword) return wrongPass();
+      previewAdminPassword = newPass;
     } else {
-      const usr = D.users.find((u) => u.id === currentUser.id);
-      if ((IS_PREVIEW && !usr) || (usr && usr.password !== oldPass)) return wrongPass();
-      if (IS_PREVIEW) usr.password = newPass;
-      else {
-        await FS.updateDoc(FS.doc(db, 'users', currentUser.id), { password: newPass });
-        msg = 'Password akun Anda berhasil diperbarui di Firestore.';
+      const { m, auth } = await loadAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error('Sesi Admin tidak ditemukan.');
+      try {
+        await m.reauthenticateWithCredential(user, m.EmailAuthProvider.credential(user.email, oldPass));
+      } catch (err) {
+        if (/invalid-credential|wrong-password/.test(err.code || '')) return wrongPass();
+        throw err;
       }
+      await m.updatePassword(user, newPass);
+      msg = 'Password Firebase Auth Admin berhasil diperbarui.';
     }
     $('change-password-form').reset();
     showToast(msg);
@@ -1680,7 +1795,7 @@ async function handleChangePassword(e) {
   }
 }
 
-// ==================== BACKUP & RESTORE (KHUSUS ADMIN) ====================
+// ==================== BACKUP & RESTORE ====================
 let pendingRestore = null; // { clean, fileName }
 
 // Preview: memori. Produksi: baca langsung dari Firestore (semua koleksi paralel).
@@ -1692,17 +1807,13 @@ async function collectBackupData() {
 }
 
 async function handleBackupDownload() {
-  if (!currentUser || currentUser.role !== 'admin') {
-    showToast('Fitur backup khusus untuk Administrator.', 'error');
-    return;
-  }
   const btn = $('btn-backup-download');
   btn.disabled = true;
   try {
     const data = await collectBackupData();
     const payload = {
       app: BACKUP_APP_ID,
-      version: 1,
+      version: 2,
       exportedAt: new Date().toISOString(),
       exportedBy: currentUser.namaLengkap,
       counts: Object.fromEntries(COLS.map((n) => [n, data[n].length])),
@@ -1726,7 +1837,8 @@ async function handleBackupDownload() {
   }
 }
 
-// Validasi & bersihkan isi file backup (hanya field yang dikenal yang diterima)
+// Validasi & bersihkan isi file backup (hanya field yang dikenal yang diterima).
+// Catatan: bagian "users" pada file backup versi lama diabaikan.
 function sanitizeBackupData(raw) {
   const str = (v) => (v === null || v === undefined ? '' : String(v).trim());
   const num = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : Date.now());
@@ -1734,8 +1846,8 @@ function sanitizeBackupData(raw) {
     typeof v === 'string' && v.length > 0 && v.length <= 200 && !v.includes('/') && v !== '.' && v !== '..' && !/^__.*__$/.test(v);
 
   let seq = 0;
-  const clean = { categories: [], archives: [], users: [] };
-  const skipped = { categories: 0, archives: 0, users: 0 };
+  const clean = { categories: [], archives: [] };
+  const skipped = { categories: 0, archives: 0 };
 
   const prepare = (name, list, build) => {
     const seen = new Set();
@@ -1760,7 +1872,7 @@ function sanitizeBackupData(raw) {
     if (!nomorSurat || !namaSurat || !fileId) return null;
     const rawUrl = str(a.driveUrl);
     const tanggal = str(a.tanggalSurat);
-    return {
+    const data = {
       nomorSurat,
       namaSurat,
       tanggalSurat: /^\d{4}-\d{2}-\d{2}$/.test(tanggal) ? tanggal : '',
@@ -1769,20 +1881,15 @@ function sanitizeBackupData(raw) {
       driveUrl: /^https:\/\//i.test(rawUrl) ? rawUrl : `https://drive.google.com/file/d/${fileId}/view?usp=sharing`,
       driveFileId: fileId,
       keterangan: str(a.keterangan),
-      uploadedBy: str(a.uploadedBy) || 'Admin',
-      uploadedById: str(a.uploadedById),
       createdAt: num(a.createdAt)
     };
-  });
-
-  const usernames = new Set();
-  prepare('users', raw.users, (u) => {
-    const namaLengkap = str(u.namaLengkap);
-    const username = str(u.username);
-    const password = u.password === null || u.password === undefined ? '' : String(u.password);
-    if (!namaLengkap || !username || !password || usernames.has(username.toLowerCase())) return null;
-    usernames.add(username.toLowerCase());
-    return { namaLengkap, username, password, jabatan: str(u.jabatan), role: 'user', createdAt: num(u.createdAt) };
+    if (a.driveUploaded === true) {
+      data.driveUploaded = true;
+      data.fileName = str(a.fileName);
+      data.mimeType = str(a.mimeType);
+      data.fileSize = Number(a.fileSize) > 0 ? Number(a.fileSize) : 0;
+    }
+    return data;
   });
 
   return { clean, skipped };
@@ -1830,10 +1937,9 @@ async function handleRestoreFileSelected(e) {
       `<div class="rounded-md bg-white border border-slate-200 py-2"><div class="text-base font-extrabold ${color}">${value}</div><div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${label}</div></div>`;
     $('restore-summary-counts').innerHTML =
       tile('Arsip', clean.archives.length, 'text-[#0F6674]') +
-      tile('Kategori', clean.categories.length, 'text-emerald-700') +
-      tile('User', clean.users.length, 'text-amber-600');
+      tile('Kategori', clean.categories.length, 'text-emerald-700');
 
-    const skipTotal = skipped.categories + skipped.archives + skipped.users;
+    const skipTotal = skipped.categories + skipped.archives;
     $('restore-summary-warning').textContent = `${skipTotal} data tidak valid atau duplikat dan akan dilewati.`;
     toggle('restore-summary-warning', !skipTotal);
     toggle('restore-summary', false);
@@ -1846,14 +1952,10 @@ async function handleRestoreFileSelected(e) {
 }
 
 function handleRestoreRun() {
-  if (!currentUser || currentUser.role !== 'admin') {
-    showToast('Fitur restore khusus untuk Administrator.', 'error');
-    return;
-  }
   if (!pendingRestore) return;
   const replace = (document.querySelector('input[name="restore-mode"]:checked') || {}).value === 'replace';
   const { clean } = pendingRestore;
-  const summary = `${clean.archives.length} arsip, ${clean.categories.length} kategori, ${clean.users.length} user`;
+  const summary = `${clean.archives.length} arsip, ${clean.categories.length} kategori`;
   openConfirmModal(
     replace ? 'Ganti Total Data' : 'Pulihkan Data',
     replace
@@ -1868,17 +1970,10 @@ async function executeRestore(clean, replace) {
   const current = await collectBackupData();
   const final = {};
   const ops = []; // { col, id, data? } -> data ada = set, tanpa data = delete
-  let skippedUsers = 0;
 
   COLS.forEach((name) => {
     const base = replace ? [] : current[name];
-    const incoming = clean[name].filter((item) => {
-      if (name !== 'users' || replace) return true;
-      // Mode gabung: lewati user yang username-nya sudah dipakai user lain (ID berbeda)
-      const conflict = base.some((u) => u.id !== item.id && (u.username || '').toLowerCase() === item.data.username.toLowerCase());
-      if (conflict) skippedUsers++;
-      return !conflict;
-    });
+    const incoming = clean[name];
     const ids = new Set(incoming.map((i) => i.id));
     if (replace) current[name].forEach((c) => ids.has(c.id) || ops.push({ col: name, id: c.id }));
     incoming.forEach((i) => ops.push({ col: name, id: i.id, data: i.data }));
@@ -1906,8 +2001,7 @@ async function executeRestore(clean, replace) {
   }
 
   resetRestoreUI();
-  const msg = `Restore berhasil: ${final.archives.count} arsip, ${final.categories.count} kategori, ${final.users.count} user dipulihkan.`;
-  showToast(skippedUsers ? `${msg} ${skippedUsers} user dilewati (username sudah dipakai).` : msg);
+  showToast(`Restore berhasil: ${final.archives.count} arsip, ${final.categories.count} kategori dipulihkan.`);
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -1932,10 +2026,6 @@ function bindEventListeners() {
     $('login-identity').value = 'admin@apsir.id';
     $('login-password').value = previewAdminPassword;
   });
-  on('btn-fill-user', 'click', () => {
-    $('login-identity').value = 'staf01';
-    $('login-password').value = 'user123';
-  });
 
   on('login-form', 'submit', handleLoginSubmit);
   on('btn-sidebar-logout', 'click', handleLogout);
@@ -1950,13 +2040,7 @@ function bindEventListeners() {
   });
 
   document.querySelectorAll('.nav-trigger').forEach((btn) => btn.addEventListener('click', () => switchMenu(btn.dataset.nav)));
-  document.querySelectorAll('[data-goto]').forEach((card) =>
-    card.addEventListener('click', () => {
-      const target = card.dataset.goto;
-      if (currentUser && currentUser.role !== 'admin' && target !== 'archives') return;
-      switchMenu(target);
-    })
-  );
+  document.querySelectorAll('[data-goto]').forEach((card) => card.addEventListener('click', () => switchMenu(card.dataset.goto)));
 
   // Pencarian global di topbar & pencarian di halaman arsip
   const renderArchivesSoon = debounce(renderArchivesTable, 120);
@@ -1986,51 +2070,39 @@ function bindEventListeners() {
     categorySearch = $('category-search-input').value;
     renderCategoriesTable();
   }, 120));
-  on('user-search-input', 'input', debounce(function () {
-    userSearch = $('user-search-input').value;
-    renderUsersTable();
-  }, 120));
 
   // Tombol tambah & submit form
   on('btn-add-archive', 'click', () => openArchiveModal());
   on('btn-add-category', 'click', () => openCategoryModal());
-  on('btn-add-user', 'click', () => openUserModal());
   on('form-archive', 'submit', handleSaveArchive);
   on('form-category', 'submit', handleSaveCategory);
-  on('form-user', 'submit', handleSaveUser);
   on('change-password-form', 'submit', handleChangePassword);
 
-  // Penutup modal
+  // Penutup modal (modal arsip dikunci selama proses unggah)
   document.querySelectorAll('[data-close-modal]').forEach((btn) =>
     btn.addEventListener('click', () => {
       const id = btn.dataset.closeModal;
+      if (id === 'modal-archive' && uploading) return;
+      if (id === 'modal-drive-preview') return closeDrivePreview();
       toggle(id, true);
-      if (id === 'modal-drive-preview') {
-        const iframe = $('drive-preview-iframe');
-        iframe.removeAttribute('srcdoc');
-        iframe.src = 'about:blank';
-      }
     })
   );
+  on('preview-download-drive', 'click', handlePreviewDownload);
 
-  // Delegasi klik aksi tabel (arsip, kategori, user)
-  [['archives-table-body', 'archives'], ['categories-table-body', 'categories'], ['users-table-body', 'users']].forEach(([tbody, col]) =>
+  // Delegasi klik aksi tabel (arsip & kategori)
+  [['archives-table-body', 'archives'], ['categories-table-body', 'categories']].forEach(([tbody, col]) =>
     on(tbody, 'click', (e) => {
       const btn = e.target.closest('button[data-action]');
       const item = btn && D[col].find((x) => x.id === btn.dataset.id);
       if (!item) return;
       const action = btn.dataset.action;
       if (action === 'preview-drive') return openDrivePreviewModal(item);
-      if (col === 'archives' && !canManageArchive(item)) {
-        showToast('Anda hanya dapat mengubah atau menghapus surat milik Anda sendiri.', 'error');
-        return;
-      }
       if (action.startsWith('edit-')) return ENT[col].open(item);
       openConfirmModal(...ENT[col].ask(item), () => removeEntity(col, item.id));
     })
   );
 
-  // Backup & Restore (Admin)
+  // Backup & Restore
   on('btn-backup-download', 'click', handleBackupDownload);
   on('btn-restore-pick', 'click', () => $('restore-file-input').click());
   on('restore-file-input', 'change', handleRestoreFileSelected);
@@ -2068,18 +2140,14 @@ function seedPreviewData() {
       id: 'arc-1', nomorSurat: '001/SK/APSIR/X/2026', namaSurat: 'SK Penetapan Tim Pengelola Arsip Digital Tahun 2026',
       kategoriId: 'cat-1', kategoriNama: 'Surat Keputusan', tanggalSurat: '2026-10-15',
       driveUrl: 'https://drive.google.com/file/d/1DemoFileSKPengelolaArsip2026/view?usp=sharing', driveFileId: '1DemoFileSKPengelolaArsip2026',
-      keterangan: 'Dokumen penetapan struktur pengurus arsip pusat.', uploadedBy: 'Admin', uploadedById: 'admin-preview', createdAt: t - 50000
+      keterangan: 'Dokumen penetapan struktur pengurus arsip pusat.', createdAt: t - 50000
     },
     {
       id: 'arc-2', nomorSurat: '014/ST/APSIR/X/2026', namaSurat: 'Surat Tugas Sosialisasi Sistem Kearsipan Elektronik',
       kategoriId: 'cat-2', kategoriNama: 'Surat Tugas', tanggalSurat: '2026-10-24',
       driveUrl: 'https://drive.google.com/file/d/1DemoFileSuratTugasSosialisasi/view?usp=sharing', driveFileId: '1DemoFileSuratTugasSosialisasi',
-      keterangan: 'Penugasan staf administrasi untuk pendampingan unit kerja.', uploadedBy: 'Budi Santoso, S.AP', uploadedById: 'usr-1', createdAt: t
+      keterangan: 'Penugasan staf administrasi untuk pendampingan unit kerja.', createdAt: t
     }
-  ];
-  D.users = [
-    { id: 'usr-1', namaLengkap: 'Budi Santoso, S.AP', username: 'staf01', password: 'user123', jabatan: 'Staf Administrasi & Arsip', role: 'user', createdAt: t - day },
-    { id: 'usr-2', namaLengkap: 'Siti Rahmawati', username: 'staf02', password: 'user123', jabatan: 'Petugas Tata Usaha', role: 'user', createdAt: t }
   ];
 }
 
